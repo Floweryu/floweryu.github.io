@@ -18,7 +18,7 @@
 
 # 用于浏览器标签的图标
 # Icon for browser tab
-favicon: /img/fluid.png
+favicon: https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202306262243645.png
 
 # 用于苹果设备的图标
 # Icon for Apple touch
