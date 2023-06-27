@@ -19,7 +19,7 @@
     <meta name="description" content="一、缓存的查询先查询缓存，如果缓存查询失败，就去查询数据库，然后重新生成缓存。 二、缓存的更新在高并发的情况下，需要考虑下面两个问题：  是先更新数据库还是先更新缓存？ 是更新缓存还是删除缓存？  1. 先更新数据库再更新缓存线程A：更新数据库（第1s）——&gt;  更新缓存（第10s） 线程B：更新数据库 （第3s）——&gt; 更新缓存（第5s） 上面情况，就会导致线程B的缓存值被线程A覆盖">
 <meta property="og:type" content="article">
 <meta property="og:title" content="缓存一致性方案思考">
-<meta property="og:url" content="http://example.com/%E7%BC%93%E5%AD%98%E4%B8%80%E8%87%B4%E6%80%A7%E6%96%B9%E6%A1%88%E6%80%9D%E8%80%83/index.html">
+<meta property="og:url" content="http://example.com/%E5%88%86%E5%B8%83%E5%BC%8F/%E5%88%86%E5%B8%83%E5%BC%8F/%E7%BC%93%E5%AD%98%E4%B8%80%E8%87%B4%E6%80%A7%E6%96%B9%E6%A1%88%E6%80%9D%E8%80%83/index.html">
 <meta property="og:site_name" content="Floweryu">
 <meta property="og:description" content="一、缓存的查询先查询缓存，如果缓存查询失败，就去查询数据库，然后重新生成缓存。 二、缓存的更新在高并发的情况下，需要考虑下面两个问题：  是先更新数据库还是先更新缓存？ 是更新缓存还是删除缓存？  1. 先更新数据库再更新缓存线程A：更新数据库（第1s）——&gt;  更新缓存（第10s） 线程B：更新数据库 （第3s）——&gt; 更新缓存（第5s） 上面情况，就会导致线程B的缓存值被线程A覆盖">
 <meta property="og:locale" content="zh_CN">
@@ -31,8 +31,8 @@
 <meta property="og:image" content="https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202306262252746.png">
 <meta property="og:image" content="https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202306262252738.png">
 <meta property="og:image" content="https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202306262253576.png">
-<meta property="article:published_time" content="2023-06-26T15:09:09.841Z">
-<meta property="article:modified_time" content="2023-06-26T15:09:09.841Z">
+<meta property="article:published_time" content="2023-06-27T02:10:21.060Z">
+<meta property="article:modified_time" content="2023-06-27T02:10:21.060Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="随笔">
 <meta name="twitter:card" content="summary_large_image">
@@ -104,7 +104,7 @@
   <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
   <div class="container">
     <a class="navbar-brand" href="/">
-      <strong>Floweryu</strong>
+      <strong>Floweryu&#39;s Blog</strong>
     </a>
 
     <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
@@ -217,8 +217,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2023-06-26 15:09" pubdate>
-          2023年6月26日 下午
+        <time datetime="2023-06-27 02:10" pubdate>
+          2023年6月27日 凌晨
         </time>
       </span>
     
@@ -416,7 +416,7 @@
   <div class="license-box my-3">
     <div class="license-title">
       <div>缓存一致性方案思考</div>
-      <div>http://example.com/缓存一致性方案思考/</div>
+      <div>http://example.com/分布式/分布式/缓存一致性方案思考/</div>
     </div>
     <div class="license-meta">
       
@@ -428,7 +428,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2023年6月26日</div>
+          <div>2023年6月27日</div>
         </div>
       
       
@@ -460,7 +460,7 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/hello-world/" title="Hello World">
+                      <a href="/uncategorized/hello-world/" title="Hello World">
                         <i class="iconfont icon-arrowleft"></i>
                         <span class="hidden-mobile">Hello World</span>
                         <span class="visible-mobile">上一篇</span>
