@@ -16,29 +16,24 @@
   <meta name="author" content="John Doe">
   <meta name="keywords" content="">
   
-    <meta name="description" content="流量控制 任意时间到来的请求往往是随机不可控的，而系统的处理能力是有限的。需要根据系统的处理能力对流量进行控制   流量控制有下面几个角度：  资源的调用关系。比如：资源调用链路、资源和资源的关系。 运行的指标。比如：QPS、线程池、系统负载。 控制的效果。比如：直接限流、冷启动、排队。  熔断降级在资源调用过程中，如果某个资源出现了不稳定，最终会导致堆积发生。  Sentinel 和 Hystr">
+    <meta name="description" content="概述FlowSlot 会根据预设的规则，结合前面 NodeSelectorSlot、ClusterNodeBuilderSlot、StatistcSlot 统计出来的实时信息进行流量控制。 限流的直接表现是在执行 Entry nodeA &#x3D; SphU.entry(资源名字) 的时候抛出 FlowException 异常。FlowException 是 BlockException 的子类，您可以捕">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Sentinel基础概念">
-<meta property="og:url" content="https://floweryu.github.io/Sentinel/Sentinel%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5/index.html">
+<meta property="og:title" content="Sentinel流量控制">
+<meta property="og:url" content="https://floweryu.github.io/Sentinel/Sentinel%E6%B5%81%E9%87%8F%E6%8E%A7%E5%88%B6/index.html">
 <meta property="og:site_name" content="Floweryu">
-<meta property="og:description" content="流量控制 任意时间到来的请求往往是随机不可控的，而系统的处理能力是有限的。需要根据系统的处理能力对流量进行控制   流量控制有下面几个角度：  资源的调用关系。比如：资源调用链路、资源和资源的关系。 运行的指标。比如：QPS、线程池、系统负载。 控制的效果。比如：直接限流、冷启动、排队。  熔断降级在资源调用过程中，如果某个资源出现了不稳定，最终会导致堆积发生。  Sentinel 和 Hystr">
+<meta property="og:description" content="概述FlowSlot 会根据预设的规则，结合前面 NodeSelectorSlot、ClusterNodeBuilderSlot、StatistcSlot 统计出来的实时信息进行流量控制。 限流的直接表现是在执行 Entry nodeA &#x3D; SphU.entry(资源名字) 的时候抛出 FlowException 异常。FlowException 是 BlockException 的子类，您可以捕">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202307021350271.png">
-<meta property="og:image" content="https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202307022000526.png">
-<meta property="og:image" content="https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202307022001521.png">
-<meta property="og:image" content="https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202307022001747.png">
-<meta property="og:image" content="https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202307022001547.png">
-<meta property="og:image" content="https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202307022001258.png">
+<meta property="og:image" content="https://floweryu.github.io/assets/image-20230702223524513.png">
 <meta property="article:published_time" content="2023-07-02T15:34:39.213Z">
 <meta property="article:modified_time" content="2023-07-02T15:34:39.213Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="后端">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202307021350271.png">
+<meta name="twitter:image" content="https://floweryu.github.io/assets/image-20230702223524513.png">
   
   
   
-  <title>Sentinel基础概念 - Floweryu</title>
+  <title>Sentinel流量控制 - Floweryu</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -204,7 +199,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="Sentinel基础概念"></span>
+            <span id="subtitle" data-typed-text="Sentinel流量控制"></span>
           
         </div>
 
@@ -228,7 +223,7 @@
         <i class="iconfont icon-chart"></i>
         
           <!-- compatible with older versions-->
-          2.8k 字
+          3.3k 字
         
       </span>
     
@@ -240,7 +235,7 @@
         
         
           <!-- compatible with older versions-->
-          24 分钟
+          28 分钟
         
       </span>
     
@@ -286,92 +281,72 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">Sentinel基础概念</h1>
+            <h1 style="display: none">Sentinel流量控制</h1>
             
             
               <div class="markdown-body">
                 
-                <h2 id="流量控制"><a href="#流量控制" class="headerlink" title="流量控制"></a>流量控制</h2><blockquote>
-<p><strong>任意时间到来的请求往往是随机不可控的，而系统的处理能力是有限的</strong>。需要根据系统的处理能力对流量进行控制</p>
-</blockquote>
-<p><img src="https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202307021350271.png" srcset="/img/loading.gif" lazyload alt="image-20230702135042339"></p>
-<p>流量控制有下面几个角度：</p>
+                <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p><code>FlowSlot</code> 会根据预设的规则，结合前面 <code>NodeSelectorSlot</code>、<code>ClusterNodeBuilderSlot</code>、<code>StatistcSlot</code> 统计出来的实时信息进行流量控制。</p>
+<p>限流的直接表现是在执行 <code>Entry nodeA = SphU.entry(资源名字)</code> 的时候抛出 <code>FlowException</code> 异常。<code>FlowException</code> 是 <code>BlockException</code> 的子类，您可以捕捉 <code>BlockException</code> 来自定义被限流之后的处理逻辑。</p>
+<p>同一个资源可以对应多条限流规则。<code>FlowSlot</code> 会对该资源的所有限流规则依次遍历，直到有规则触发限流或者所有规则遍历完毕。</p>
+<p>一条限流规则主要由下面几个因素组成，我们可以组合这些元素来实现不同的限流效果：</p>
 <ul>
-<li><strong>资源的调用关系</strong>。比如：资源调用链路、资源和资源的关系。</li>
-<li><strong>运行的指标</strong>。比如：QPS、线程池、系统负载。</li>
-<li><strong>控制的效果</strong>。比如：直接限流、冷启动、排队。</li>
+<li><code>resource</code>：资源名，即限流规则的作用对象</li>
+<li><code>count</code>: 限流阈值</li>
+<li><code>grade</code>: 限流阈值类型，QPS 或线程数</li>
+<li><code>strategy</code>: 根据调用关系选择策略</li>
 </ul>
-<h2 id="熔断降级"><a href="#熔断降级" class="headerlink" title="熔断降级"></a>熔断降级</h2><p>在资源调用过程中，如果某个资源出现了不稳定，最终会导致堆积发生。</p>
-<p><img src="https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202307022000526.png" srcset="/img/loading.gif" lazyload alt="image-20230702135741629"></p>
-<p>Sentinel 和 Hystrix 的原则是一致的：当调用链路中某个资源出现不稳定，例如，表现为 timeout，异常比例升高的时候。则对这个资源的调用进行限制，并让请求快速失败，避免影响到其它的资源，最终产生雪崩的效果。</p>
-<h3 id="熔断降级设计理念"><a href="#熔断降级设计理念" class="headerlink" title="熔断降级设计理念"></a>熔断降级设计理念</h3><p>在限制的手段上，Sentinel 和 Hystrix 采取了完全不一样的方法。</p>
-<p>Hystrix 通过<a target="_blank" rel="noopener" href="https://github.com/Netflix/Hystrix/wiki/How-it-Works#benefits-of-thread-pools">线程池</a>的方式：</p>
-<ul>
-<li>好处：资源和资源之间做到了最彻底的隔离。</li>
-<li>缺点：除了增加了线程切换的成本，还需要预先给各个资源做线程池大小的分配。</li>
-</ul>
-<p>Sentinel 对这个问题采取了两种手段：</p>
-<ol>
-<li><strong>通过并发线程数进行限制</strong></li>
-</ol>
-<p>这样不但没有线程切换的损耗，也不需要您预先分配线程池的大小。当某个资源出现不稳定的情况下，例如响应时间变长，对资源的直接影响就是会造成线程数的逐步堆积。<strong>当线程数在特定资源上堆积到一定的数量之后，对该资源的新请求就会被拒绝</strong>。堆积的线程完成任务后才开始继续接收请求。</p>
-<ol start="2">
-<li><strong>通过响应时间对资源进行降级</strong></li>
-</ol>
-<p>除了对并发线程数进行控制以外，Sentinel 还可以通过响应时间来快速降级不稳定的资源。<strong>当依赖的资源出现响应时间过长后，所有对该资源的访问都会被直接拒绝，直到过了指定的时间窗口之后才重新恢复</strong>。</p>
-<h2 id="系统负载保护"><a href="#系统负载保护" class="headerlink" title="系统负载保护"></a>系统负载保护</h2><p>Sentinel 同时提供<a target="_blank" rel="noopener" href="https://sentinelguard.io/zh-cn/docs/system-adaptive-protection.html">系统维度的自适应保护能力</a>。防止雪崩，是系统防护中重要的一环。当系统负载较高的时候，如果还持续让请求进入，可能会导致系统崩溃，无法响应。在集群环境下，网络负载均衡会把本应这台机器承载的流量转发到其它的机器上去。如果这个时候其它的机器也处在一个边缘状态的时候，这个增加的流量就会导致这台机器也崩溃，最后导致整个集群不可用。</p>
-<h2 id="Sentinel主流程"><a href="#Sentinel主流程" class="headerlink" title="Sentinel主流程"></a>Sentinel主流程</h2><p>在 Sentinel 里面，所有的资源都对应一个资源名称以及一个 Entry。Entry 可以通过对主流框架的适配自动创建，也可以通过注解的方式或调用 API 显式创建；每一个 Entry 创建的时候，同时也会创建一系列功能插槽（slot chain）。这些插槽有不同的职责，例如:、</p>
-<ul>
-<li><code>NodeSelectorSlot</code> 负责收集资源的路径，并将这些资源的调用路径，以树状结构存储起来，用于根据调用路径来限流降级；</li>
-<li><code>ClusterBuilderSlot</code> 则用于存储资源的统计信息以及调用者信息，例如该资源的 RT, QPS, thread count 等等，这些信息将用作为多维度限流，降级的依据；</li>
-<li><code>StatisticSlot</code> 则用于记录、统计不同纬度的 runtime 指标监控信息；</li>
-<li><code>FlowSlot</code> 则用于根据预设的限流规则以及前面 slot 统计的状态，来进行流量控制；</li>
-<li><code>AuthoritySlot</code> 则根据配置的黑白名单和调用来源信息，来做黑白名单控制；</li>
-<li><code>DegradeSlot</code> 则通过统计信息以及预设的规则，来做熔断降级；</li>
-<li><code>SystemSlot</code> 则通过系统的状态，例如 load1 等，来控制总的入口流量；</li>
-</ul>
-<p>总体的框架如下：</p>
-<p><img src="https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202307022001521.png" srcset="/img/loading.gif" lazyload alt="image-20230702154412159"></p>
-<p>Sentinel 将 <code>ProcessorSlot</code> 作为 SPI 接口进行扩展（1.7.2 版本以前 <code>SlotChainBuilder</code> 作为 SPI），使得 Slot Chain 具备了扩展的能力。您可以自行加入自定义的 slot 并编排 slot 间的顺序，从而可以给 Sentinel 添加自定义的功能。</p>
-<p><img src="https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202307022001747.png" srcset="/img/loading.gif" lazyload alt="image-20230702154750154"></p>
-<h2 id="Sentinal各个Slot功能"><a href="#Sentinal各个Slot功能" class="headerlink" title="Sentinal各个Slot功能"></a>Sentinal各个Slot功能</h2><h3 id="NodeSelectorSlot"><a href="#NodeSelectorSlot" class="headerlink" title="NodeSelectorSlot"></a>NodeSelectorSlot</h3><blockquote>
-<p> 这个 slot 主要负责收集资源的路径，并将这些资源的调用路径，以树状结构存储起来，用于根据调用路径来限流降级。</p>
-</blockquote>
-<p>使用下面代码可以创建一个demo：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs java">ContextUtil.enter(<span class="hljs-string">&quot;entrance1&quot;</span>, <span class="hljs-string">&quot;appA&quot;</span>);<br> <span class="hljs-type">Entry</span> <span class="hljs-variable">nodeA</span> <span class="hljs-operator">=</span> SphU.entry(<span class="hljs-string">&quot;nodeA&quot;</span>);<br> <span class="hljs-keyword">if</span> (nodeA != <span class="hljs-literal">null</span>) &#123;<br>   nodeA.exit();<br> &#125;<br> ContextUtil.exit();<br><br> ContextUtil.enter(<span class="hljs-string">&quot;entrance2&quot;</span>, <span class="hljs-string">&quot;appA&quot;</span>);<br> nodeA = SphU.entry(<span class="hljs-string">&quot;nodeA&quot;</span>);<br> <span class="hljs-keyword">if</span> (nodeA != <span class="hljs-literal">null</span>) &#123;<br>   nodeA.exit();<br> &#125;<br> ContextUtil.exit();<br></code></pre></td></tr></table></figure>
+<h2 id="基于QPS-x2F-并发数的流量控制"><a href="#基于QPS-x2F-并发数的流量控制" class="headerlink" title="基于QPS&#x2F;并发数的流量控制"></a>基于QPS&#x2F;并发数的流量控制</h2><p>流量控制主要有两种统计类型，一种是<strong>统计线程数</strong>，另外一种则是统计 QPS。类型由 <code>FlowRule.grade</code> 字段来定义。其中，0 代表根据并发数量来限流，1 代表根据 QPS 来进行流量控制。其中线程数、QPS 值，都是由 <code>StatisticSlot</code> 实时统计获取的。</p>
+<p>内容格式如下：</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">idx</span> id   thread  pass  blocked   success  total Rt   <span class="hljs-number">1</span>m-pass   <span class="hljs-number">1</span>m-block   <span class="hljs-number">1</span>m-<span class="hljs-literal">all</span>   exeption<br><span class="hljs-attribute">2</span>   abc647 <span class="hljs-number">0</span>     <span class="hljs-number">46</span>     <span class="hljs-number">0</span>           <span class="hljs-number">46</span>     <span class="hljs-number">46</span>   <span class="hljs-number">1</span>       <span class="hljs-number">2763</span>      <span class="hljs-number">0</span>         <span class="hljs-number">2763</span>     <span class="hljs-number">0</span><br></code></pre></td></tr></table></figure>
 
-<p><img src="https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202307022001547.png" srcset="/img/loading.gif" lazyload alt="image-20230702160008744"></p>
-<h3 id="ClusterBuilderSlot"><a href="#ClusterBuilderSlot" class="headerlink" title="ClusterBuilderSlot"></a>ClusterBuilderSlot</h3><blockquote>
-<p>此插槽用于构建资源的 <code>ClusterNode</code> 以及调用来源节点。<code>ClusterNode</code> 保持资源运行统计信息（响应时间、QPS、block 数目、线程数、异常数等）以及原始调用者统计信息列表。来源调用者的名字由 <code>ContextUtil.enter(contextName，origin)</code> 中的 <code>origin</code> 标记。</p>
-</blockquote>
-<p>存储的信息示例如下：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">id</span>: nodeA<br>idx origin  threadNum passedQps blockedQps totalQps aRt   1m-passed 1m-blocked 1m-total <br>1   caller1 0         0         0          0        0     0         0          0        <br>2   caller2 0         0         0          0        0     0         0          0        <br></code></pre></td></tr></table></figure>
-
-
-
-<h3 id="StatisticSlot"><a href="#StatisticSlot" class="headerlink" title="StatisticSlot"></a>StatisticSlot</h3><blockquote>
-<p><code>StatisticSlot</code> 是 Sentinel 的核心功能插槽之一，用于统计实时的调用数据。</p>
-</blockquote>
+<p>其中：</p>
 <ul>
-<li><code>clusterNode</code>：资源唯一标识的 ClusterNode 的 runtime 统计</li>
-<li><code>origin</code>：根据来自不同调用者的统计信息</li>
-<li><code>defaultnode</code>: 根据上下文条目名称和资源 ID 的 runtime 统计</li>
-<li>入口的统计</li>
+<li>thread： 代表当前处理该资源的线程数；</li>
+<li>pass： 代表一秒内到来到的请求；</li>
+<li>blocked： 代表一秒内被流量控制的请求数量；</li>
+<li>success： 代表一秒内成功处理完的请求；</li>
+<li>total： 代表到一秒内到来的请求以及被阻止的请求总和；</li>
+<li>RT： 代表一秒内该资源的平均响应时间；</li>
+<li>1m-pass： 则是一分钟内到来的请求；</li>
+<li>1m-block： 则是一分钟内被阻止的请求；</li>
+<li>1m-all： 则是一分钟内到来的请求和被阻止的请求的总和；</li>
+<li>exception： 则是一秒内业务本身异常的总和。</li>
 </ul>
-<p>Sentinel 底层采用高性能的滑动窗口数据结构 <code>LeapArray</code> 来统计实时的秒级指标数据，可以很好地支撑写多于读的高并发场景。</p>
-<p><img src="https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202307022001258.png" srcset="/img/loading.gif" lazyload alt="image-20230702160429033"></p>
-<h3 id="FlowSlot"><a href="#FlowSlot" class="headerlink" title="FlowSlot"></a>FlowSlot</h3><p>这个 slot 主要根据预设的资源的统计信息，按照固定的次序，依次生效。如果一个资源对应两条或者多条流控规则，则会根据如下次序依次检验，直到全部通过或者有一个规则生效为止:</p>
+<h3 id="2-1-并发线程数流量控制"><a href="#2-1-并发线程数流量控制" class="headerlink" title="2.1 并发线程数流量控制"></a>2.1 并发线程数流量控制</h3><p>线程数限流用于保护业务线程数不被耗尽。</p>
+<p>Sentinel线程数限流不负责创建和管理线程池，而是简单统计当前请求上下文的线程个数，如果超出阈值，新的请求会被立即拒绝。</p>
+<h3 id="2-2-QPS流量控制"><a href="#2-2-QPS流量控制" class="headerlink" title="2.2 QPS流量控制"></a>2.2 QPS流量控制</h3><p>当 QPS 超过某个阈值的时候，则采取措施进行流量控制。流量控制的手段包括下面 3 种，对应 <code>FlowRule</code> 中的 <code>controlBehavior</code> 字段：</p>
+<h4 id="直接拒绝"><a href="#直接拒绝" class="headerlink" title="直接拒绝"></a>直接拒绝</h4><p>直接拒绝（<code>RuleConstant.CONTROL_BEHAVIOR_DEFAULT</code>）方式。该方式是默认的流量控制方式，当QPS超过任意规则的阈值后，新的请求就会被立即拒绝，拒绝方式为抛出<code>FlowException</code>。</p>
+<h4 id="冷启动"><a href="#冷启动" class="headerlink" title="冷启动"></a>冷启动</h4><p>冷启动（<code>RuleConstant.CONTROL_BEHAVIOR_WARM_UP</code>）方式。该方式主要用于系统长期处于低水位的情况下，当流量突然增加时，直接把系统拉升到高水位可能瞬间把系统压垮。通过”冷启动”，让通过的流量缓慢增加，在一定时间内逐渐增加到阈值上限，给冷系统一个预热的时间，避免冷系统被压垮的情况。</p>
+<h4 id="匀速排队"><a href="#匀速排队" class="headerlink" title="匀速排队"></a>匀速排队</h4><p>匀速器（<code>RuleConstant.CONTROL_BEHAVIOR_RATE_LIMITER</code>）方式。这种方式严格控制了请求通过的间隔时间，也即是让请求以均匀的速度通过，对应的是漏桶算法。</p>
+<p>这种方式主要用于处理间隔性突发的流量，例如消息队列。想象一下这样的场景，在某一秒有大量的请求到来，而接下来的几秒则处于空闲状态，我们希望系统能够在接下来的空闲期间逐渐处理这些请求，而不是在第一秒直接拒绝多余的请求。</p>
+<blockquote>
+<p>注意：匀速排队模式暂时不支持 QPS &gt; 1000 的场景。</p>
+</blockquote>
+<p><img src="/./assets/image-20230702223524513.png" srcset="/img/loading.gif" lazyload alt="image-20230702223524513"></p>
+<h2 id="基于调用关系的流量控制"><a href="#基于调用关系的流量控制" class="headerlink" title="基于调用关系的流量控制"></a>基于调用关系的流量控制</h2><p>调用关系包括调用方、被调用方；一个方法又可能会调用其它方法，形成一个调用链路的层次关系。Sentinel 通过 <code>NodeSelectorSlot</code> 建立不同资源间的调用的关系，并且通过 <code>ClusterBuilderSlot</code> 记录每个资源的实时统计信息。</p>
+<h3 id="3-1-根据调用方限流"><a href="#3-1-根据调用方限流" class="headerlink" title="3.1 根据调用方限流"></a>3.1 根据调用方限流</h3><p><code>ContextUtil.enter(resourceName, origin)</code> 方法中的 <code>origin</code> 参数标明了调用方身份。这些信息会在 <code>ClusterBuilderSlot</code> 中被统计。</p>
+<p>调用数据示例：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">id</span>: nodeA<br>idx origin  threadNum passedQps blockedQps totalQps aRt   1m-passed 1m-blocked 1m-total <br>1   caller1 0         0         0          0        0     0         0          0<br>2   caller2 0         0         0          0        0     0         0          0<br></code></pre></td></tr></table></figure>
+
+<p>上面这个命令展示了资源名为 <code>nodeA</code> 的资源被两个不同的调用方调用的统计。</p>
+<p>流控规则中的 <code>limitApp</code> 字段用于根据调用来源进行流量控制。该字段的值有以下三种选项，分别对应不同的场景：</p>
 <ul>
-<li>指定应用生效的规则，即针对调用方限流的；</li>
-<li>调用方为 other 的规则；</li>
-<li>调用方为 default 的规则。</li>
+<li><code>default</code>：表示不区分调用者，来自任何调用者的请求都将进行限流统计。如果这个资源名的调用总和超过了这条规则定义的阈值，则触发限流。</li>
+<li><code>&#123;some_origin_name&#125;</code>：表示针对特定的调用者，只有来自这个调用者的请求才会进行流量控制。例如 <code>NodeA</code> 配置了一条针对调用者<code>caller1</code>的规则，那么当且仅当来自 <code>caller1</code> 对 <code>NodeA</code> 的请求才会触发流量控制。</li>
+<li><code>other</code>：表示针对除 <code>&#123;some_origin_name&#125;</code> 以外的其余调用方的流量进行流量控制。例如，资源<code>NodeA</code>配置了一条针对调用者 <code>caller1</code> 的限流规则，同时又配置了一条调用者为 <code>other</code> 的规则，那么任意来自非 <code>caller1</code> 对 <code>NodeA</code> 的调用，都不能超过 <code>other</code> 这条规则定义的阈值。</li>
 </ul>
-<h3 id="DegradeSlot"><a href="#DegradeSlot" class="headerlink" title="DegradeSlot"></a>DegradeSlot</h3><p>这个 slot 主要针对资源的平均响应时间（RT）以及异常比率，来决定资源是否在接下来的时间被自动熔断掉。</p>
-<h3 id="SystemSlot"><a href="#SystemSlot" class="headerlink" title="SystemSlot"></a>SystemSlot</h3><p>这个 slot 会根据对于当前系统的整体情况，对入口资源的调用进行动态调配。其原理是让入口的流量和当前系统的预计容量达到一个动态平衡。</p>
-<p>注意系统规则只对入口流量起作用（调用类型为 <code>EntryType.IN</code>），对出口流量无效。可通过 <code>SphU.entry(res, entryType)</code> 指定调用类型，如果不指定，默认是<code>EntryType.OUT</code>。</p>
-<h3 id="参考文档："><a href="#参考文档：" class="headerlink" title="参考文档："></a>参考文档：</h3><ul>
-<li><a target="_blank" rel="noopener" href="https://github.com/alibaba/Sentinel/wiki/Sentinel-%E6%A0%B8%E5%BF%83%E7%B1%BB%E8%A7%A3%E6%9E%90">核心类解析</a></li>
-</ul>
+<p>同一个资源名可以配置多条规则，规则的生效顺序为：**{some_origin_name} &gt; other &gt; default**</p>
+<blockquote>
+<p>注意：调用来源的数目不要太多（一般不要超过几百个），否则内存占用会非常多（调用来源的统计节点最大数目&#x3D;资源数目*来源数目）。</p>
+</blockquote>
+<h3 id="3-2-根据调用链路入口限流：链路限流"><a href="#3-2-根据调用链路入口限流：链路限流" class="headerlink" title="3.2 根据调用链路入口限流：链路限流"></a>3.2 根据调用链路入口限流：链路限流</h3><p><code>NodeSelectorSlot</code> 中记录了资源之间的调用链路，这些资源通过调用关系，相互之间构成一棵调用树。这棵树的根节点是一个名字为 <code>machine-root</code> 的虚拟节点，调用链的入口都是这个虚节点的子节点。</p>
+<p>一棵典型的调用树如下图所示：</p>
+<figure class="highlight livescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs livescript">          machine-root<br>              /       <span class="hljs-string">\</span><br>             /         <span class="hljs-string">\</span><br>       Entrance1     Entrance2<br>          /             <span class="hljs-string">\</span><br>         /               <span class="hljs-string">\</span><br>DefaultNode(nodeA)   DefaultNode(nodeA)<br></code></pre></td></tr></table></figure>
+
+<p>上图中来自入口 <code>Entrance1</code> 和 <code>Entrance2</code> 的请求都调用到了资源 <code>NodeA</code>，Sentinel 允许只根据某个入口的统计信息对资源限流。比如我们可以设置 <code>strategy</code> 为 <code>RuleConstant.STRATEGY_CHAIN</code>，同时设置 <code>refResource</code> 为 <code>Entrance1</code> 来表示只有从入口 <code>Entrance1</code> 的调用才会记录到 <code>NodeA</code> 的限流统计当中，而不关心经 <code>Entrance2</code> 到来的调用。</p>
+<p>调用链的入口（上下文）是通过 API 方法 <code>ContextUtil.enter(contextName)</code> 定义的，其中 contextName 即对应调用链路入口名称。</p>
+<h3 id="3-3-具有关系的资源流量控制：关联流量控制"><a href="#3-3-具有关系的资源流量控制：关联流量控制" class="headerlink" title="3.3 具有关系的资源流量控制：关联流量控制"></a>3.3 具有关系的资源流量控制：关联流量控制</h3><p>当两个资源之间具有资源争抢或者依赖关系的时候，这两个资源便具有了关联。比如对数据库同一个字段的读操作和写操作存在争抢，读的速度过高会影响写得速度，写的速度过高会影响读的速度。如果放任读写操作争抢资源，则争抢本身带来的开销会降低整体的吞吐量。可使用关联限流来避免具有关联关系的资源之间过度的争抢，举例来说，<code>read_db</code> 和 <code>write_db</code> 这两个资源分别代表数据库读写，我们<strong>可以给 <code>read_db</code> 设置限流规则来达到写优先的目的：设置 <code>strategy</code> 为 <code>RuleConstant.STRATEGY_RELATE</code> 同时设置 <code>refResource</code> 为 <code>write_db</code>。这样当写库操作过于频繁时，读数据的请求会被限流</strong>。</p>
 
                 
               </div>
@@ -417,8 +392,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>Sentinel基础概念</div>
-      <div>https://floweryu.github.io/Sentinel/Sentinel基础概念/</div>
+      <div>Sentinel流量控制</div>
+      <div>https://floweryu.github.io/Sentinel/Sentinel流量控制/</div>
     </div>
     <div class="license-meta">
       
@@ -462,21 +437,15 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/%E5%88%86%E5%B8%83%E5%BC%8F/%E7%BC%93%E5%AD%98%E4%B8%80%E8%87%B4%E6%80%A7%E6%96%B9%E6%A1%88%E6%80%9D%E8%80%83/" title="缓存一致性方案思考">
+                      <a href="/Sentinel/Sentinel%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5/" title="Sentinel基础概念">
                         <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">缓存一致性方案思考</span>
+                        <span class="hidden-mobile">Sentinel基础概念</span>
                         <span class="visible-mobile">上一篇</span>
                       </a>
                     
                   </article>
                   <article class="post-next col-6">
                     
-                    
-                      <a href="/Sentinel/Sentinel%E6%B5%81%E9%87%8F%E6%8E%A7%E5%88%B6/" title="Sentinel流量控制">
-                        <span class="hidden-mobile">Sentinel流量控制</span>
-                        <span class="visible-mobile">下一篇</span>
-                        <i class="iconfont icon-arrowright"></i>
-                      </a>
                     
                   </article>
                 </div>
