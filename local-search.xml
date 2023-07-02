@@ -41,30 +41,5 @@
   
   
   
-  <entry>
-    <title>图片测试</title>
-    <link href="/%E6%B5%8B%E8%AF%95/%E5%9B%BE%E7%89%87/"/>
-    <url>/%E6%B5%8B%E8%AF%95/%E5%9B%BE%E7%89%87/</url>
-    
-    <content type="html"><![CDATA[<p>测试图片相对路径：</p><p><img src="/./assets/image-20230628231207858.png" alt="image-20230628231207858"></p>]]></content>
-    
-    
-    <categories>
-      
-      <category>测试</category>
-      
-    </categories>
-    
-    
-    <tags>
-      
-      <tag>图片</tag>
-      
-    </tags>
-    
-  </entry>
-  
-  
-  
   
 </search>
