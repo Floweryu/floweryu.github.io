@@ -68,7 +68,7 @@ Sentinel线程数限流不负责创建和管理线程池，而是简单统计当
 
 > 注意：匀速排队模式暂时不支持 QPS > 1000 的场景。
 
-![image-20230702223524513](./assets/image-20230702223524513.png)
+![image-20230702223524513](https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202307022335925.png)
 
 ## 基于调用关系的流量控制
 
