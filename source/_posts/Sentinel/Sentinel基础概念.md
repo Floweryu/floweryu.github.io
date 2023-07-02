@@ -1,12 +1,8 @@
-\---
-
+---
 title: Sentinel基础概念
-
 categories: [Sentinel]
-
 tags: [后端]
-
-\---
+---
 
 ## 流量控制
 
