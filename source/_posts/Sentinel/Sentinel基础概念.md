@@ -1,3 +1,13 @@
+\---
+
+title: Sentinel基础概念
+
+categories: [Sentinel]
+
+tags: [后端]
+
+\---
+
 ## 流量控制
 
 > **任意时间到来的请求往往是随机不可控的，而系统的处理能力是有限的**。需要根据系统的处理能力对流量进行控制
@@ -14,7 +24,7 @@
 
 在资源调用过程中，如果某个资源出现了不稳定，最终会导致堆积发生。
 
-![image-20230702135741629](./assets/image-20230702135741629.png)
+![image-20230702135741629](https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202307022000526.png)
 
 Sentinel 和 Hystrix 的原则是一致的：当调用链路中某个资源出现不稳定，例如，表现为 timeout，异常比例升高的时候。则对这个资源的调用进行限制，并让请求快速失败，避免影响到其它的资源，最终产生雪崩的效果。
 
@@ -55,11 +65,11 @@ Sentinel 同时提供[系统维度的自适应保护能力](https://sentinelguar
 
 总体的框架如下：
 
-![image-20230702154412159](./assets/image-20230702154412159.png)
+![image-20230702154412159](https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202307022001521.png)
 
 Sentinel 将 `ProcessorSlot` 作为 SPI 接口进行扩展（1.7.2 版本以前 `SlotChainBuilder` 作为 SPI），使得 Slot Chain 具备了扩展的能力。您可以自行加入自定义的 slot 并编排 slot 间的顺序，从而可以给 Sentinel 添加自定义的功能。
 
-![image-20230702154750154](./assets/image-20230702154750154.png)
+![image-20230702154750154](https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202307022001747.png)
 
 ## Sentinal各个Slot功能
 
@@ -85,7 +95,7 @@ Sentinel 将 `ProcessorSlot` 作为 SPI 接口进行扩展（1.7.2 版本以前 
   ContextUtil.exit();
 ```
 
-![image-20230702160008744](./assets/image-20230702160008744.png)
+![image-20230702160008744](https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202307022001547.png)
 
 ### ClusterBuilderSlot
 
@@ -113,7 +123,7 @@ idx origin  threadNum passedQps blockedQps totalQps aRt   1m-passed 1m-blocked 1
 
 Sentinel 底层采用高性能的滑动窗口数据结构 `LeapArray` 来统计实时的秒级指标数据，可以很好地支撑写多于读的高并发场景。
 
-![image-20230702160429033](./assets/image-20230702160429033.png)
+![image-20230702160429033](https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202307022001258.png)
 
 ### FlowSlot
 
