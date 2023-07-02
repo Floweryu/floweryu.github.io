@@ -16,12 +16,12 @@
   <meta name="author" content="John Doe">
   <meta name="keywords" content="">
   
-    <meta name="description" content="-– title: Sentinel基础概念 categories: [Sentinel] tags: [后端] -– 流量控制 任意时间到来的请求往往是随机不可控的，而系统的处理能力是有限的。需要根据系统的处理能力对流量进行控制   流量控制有下面几个角度：  资源的调用关系。比如：资源调用链路、资源和资源的关系。 运行的指标。比如：QPS、线程池、系统负载。 控制的效果。比如：直接限流、冷启动">
+    <meta name="description" content="流量控制 任意时间到来的请求往往是随机不可控的，而系统的处理能力是有限的。需要根据系统的处理能力对流量进行控制   流量控制有下面几个角度：  资源的调用关系。比如：资源调用链路、资源和资源的关系。 运行的指标。比如：QPS、线程池、系统负载。 控制的效果。比如：直接限流、冷启动、排队。  熔断降级在资源调用过程中，如果某个资源出现了不稳定，最终会导致堆积发生。  Sentinel 和 Hystr">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Floweryu">
+<meta property="og:title" content="Sentinel基础概念">
 <meta property="og:url" content="https://floweryu.github.io/Sentinel/Sentinel%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5/index.html">
 <meta property="og:site_name" content="Floweryu">
-<meta property="og:description" content="-– title: Sentinel基础概念 categories: [Sentinel] tags: [后端] -– 流量控制 任意时间到来的请求往往是随机不可控的，而系统的处理能力是有限的。需要根据系统的处理能力对流量进行控制   流量控制有下面几个角度：  资源的调用关系。比如：资源调用链路、资源和资源的关系。 运行的指标。比如：QPS、线程池、系统负载。 控制的效果。比如：直接限流、冷启动">
+<meta property="og:description" content="流量控制 任意时间到来的请求往往是随机不可控的，而系统的处理能力是有限的。需要根据系统的处理能力对流量进行控制   流量控制有下面几个角度：  资源的调用关系。比如：资源调用链路、资源和资源的关系。 运行的指标。比如：QPS、线程池、系统负载。 控制的效果。比如：直接限流、冷启动、排队。  熔断降级在资源调用过程中，如果某个资源出现了不稳定，最终会导致堆积发生。  Sentinel 和 Hystr">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202307021350271.png">
 <meta property="og:image" content="https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202307022000526.png">
@@ -29,15 +29,16 @@
 <meta property="og:image" content="https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202307022001747.png">
 <meta property="og:image" content="https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202307022001547.png">
 <meta property="og:image" content="https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202307022001258.png">
-<meta property="article:published_time" content="2023-07-02T12:03:20.292Z">
-<meta property="article:modified_time" content="2023-07-02T12:03:20.292Z">
+<meta property="article:published_time" content="2023-07-02T12:05:43.604Z">
+<meta property="article:modified_time" content="2023-07-02T12:05:43.604Z">
 <meta property="article:author" content="John Doe">
+<meta property="article:tag" content="后端">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202307021350271.png">
   
   
   
-  <title>Floweryu</title>
+  <title>Sentinel基础概念 - Floweryu</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -203,7 +204,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text=""></span>
+            <span id="subtitle" data-typed-text="Sentinel基础概念"></span>
           
         </div>
 
@@ -214,7 +215,7 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2023-07-02 12:03" pubdate>
+        <time datetime="2023-07-02 12:05" pubdate>
           2023年7月2日 中午
         </time>
       </span>
@@ -227,7 +228,7 @@
         <i class="iconfont icon-chart"></i>
         
           <!-- compatible with older versions-->
-          2.9k 字
+          2.8k 字
         
       </span>
     
@@ -285,17 +286,12 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none"></h1>
+            <h1 style="display: none">Sentinel基础概念</h1>
             
             
               <div class="markdown-body">
                 
-                <p>-–</p>
-<p>title: Sentinel基础概念</p>
-<p>categories: [Sentinel]</p>
-<p>tags: [后端]</p>
-<p>-–</p>
-<h2 id="流量控制"><a href="#流量控制" class="headerlink" title="流量控制"></a>流量控制</h2><blockquote>
+                <h2 id="流量控制"><a href="#流量控制" class="headerlink" title="流量控制"></a>流量控制</h2><blockquote>
 <p><strong>任意时间到来的请求往往是随机不可控的，而系统的处理能力是有限的</strong>。需要根据系统的处理能力对流量进行控制</p>
 </blockquote>
 <p><img src="https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202307021350271.png" srcset="/img/loading.gif" lazyload alt="image-20230702135042339"></p>
@@ -384,6 +380,34 @@
             <div>
               <div class="post-metas my-3">
   
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Sentinel/" class="category-chain-item">Sentinel</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%90%8E%E7%AB%AF/">#后端</a>
+      
+    </div>
   
 </div>
 
@@ -393,7 +417,7 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div></div>
+      <div>Sentinel基础概念</div>
       <div>https://floweryu.github.io/Sentinel/Sentinel基础概念/</div>
     </div>
     <div class="license-meta">
@@ -438,21 +462,15 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/hello-world/" title="Hello World">
+                      <a href="/%E5%88%86%E5%B8%83%E5%BC%8F/%E7%BC%93%E5%AD%98%E4%B8%80%E8%87%B4%E6%80%A7%E6%96%B9%E6%A1%88%E6%80%9D%E8%80%83/" title="缓存一致性方案思考">
                         <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">Hello World</span>
+                        <span class="hidden-mobile">缓存一致性方案思考</span>
                         <span class="visible-mobile">上一篇</span>
                       </a>
                     
                   </article>
                   <article class="post-next col-6">
                     
-                    
-                      <a href="/%E5%88%86%E5%B8%83%E5%BC%8F/%E7%BC%93%E5%AD%98%E4%B8%80%E8%87%B4%E6%80%A7%E6%96%B9%E6%A1%88%E6%80%9D%E8%80%83/" title="缓存一致性方案思考">
-                        <span class="hidden-mobile">缓存一致性方案思考</span>
-                        <span class="visible-mobile">下一篇</span>
-                        <i class="iconfont icon-arrowright"></i>
-                      </a>
                     
                   </article>
                 </div>
