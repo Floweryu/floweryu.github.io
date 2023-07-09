@@ -16,24 +16,22 @@
   <meta name="author" content="John Doe">
   <meta name="keywords" content="">
   
-    <meta name="description" content="概述FlowSlot 会根据预设的规则，结合前面 NodeSelectorSlot、ClusterNodeBuilderSlot、StatistcSlot 统计出来的实时信息进行流量控制。 限流的直接表现是在执行 Entry nodeA &#x3D; SphU.entry(资源名字) 的时候抛出 FlowException 异常。FlowException 是 BlockException 的子类，您可以捕">
+    <meta name="description" content="165. 比较版本号 https:&#x2F;&#x2F;leetcode.cn&#x2F;problems&#x2F;compare-version-numbers&#x2F;description&#x2F; 给你两个版本号 version1 和 version2 ，请你比较它们。 版本号由一个或多个修订号组成，各修订号由一个 &#39;.&#39; 连接。每个修订号由 多位数字 组成，可能包含 前导零 。每个版本号至少包含一个字符。修订号从左到右编号">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Sentinel流量控制">
-<meta property="og:url" content="https://floweryu.github.io/Sentinel/Sentinel%E6%B5%81%E9%87%8F%E6%8E%A7%E5%88%B6/index.html">
+<meta property="og:title" content="双指针专题">
+<meta property="og:url" content="https://floweryu.github.io/%E7%AE%97%E6%B3%95%E7%AC%94%E8%AE%B0/%E5%8F%8C%E6%8C%87%E9%92%88%E4%B8%93%E9%A2%98/index.html">
 <meta property="og:site_name" content="Floweryu">
-<meta property="og:description" content="概述FlowSlot 会根据预设的规则，结合前面 NodeSelectorSlot、ClusterNodeBuilderSlot、StatistcSlot 统计出来的实时信息进行流量控制。 限流的直接表现是在执行 Entry nodeA &#x3D; SphU.entry(资源名字) 的时候抛出 FlowException 异常。FlowException 是 BlockException 的子类，您可以捕">
+<meta property="og:description" content="165. 比较版本号 https:&#x2F;&#x2F;leetcode.cn&#x2F;problems&#x2F;compare-version-numbers&#x2F;description&#x2F; 给你两个版本号 version1 和 version2 ，请你比较它们。 版本号由一个或多个修订号组成，各修订号由一个 &#39;.&#39; 连接。每个修订号由 多位数字 组成，可能包含 前导零 。每个版本号至少包含一个字符。修订号从左到右编号">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202307022335925.png">
-<meta property="article:published_time" content="2023-07-04T12:55:00.000Z">
-<meta property="article:modified_time" content="2023-07-04T12:55:00.000Z">
+<meta property="article:published_time" content="2023-07-09T19:00:00.000Z">
+<meta property="article:modified_time" content="2023-07-09T19:00:00.000Z">
 <meta property="article:author" content="John Doe">
-<meta property="article:tag" content="后端">
+<meta property="article:tag" content="双指针">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202307022335925.png">
   
   
   
-  <title>Sentinel流量控制 - Floweryu</title>
+  <title>双指针专题 - Floweryu</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -199,7 +197,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="Sentinel流量控制"></span>
+            <span id="subtitle" data-typed-text="双指针专题"></span>
           
         </div>
 
@@ -210,8 +208,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2023-07-04 12:55" pubdate>
-          2023-07-04 12:55:00
+        <time datetime="2023-07-09 19:00" pubdate>
+          2023-07-09 07:00:00
         </time>
       </span>
     
@@ -223,7 +221,7 @@
         <i class="iconfont icon-chart"></i>
         
           <!-- compatible with older versions-->
-          3.3k 字
+          1.5k 字
         
       </span>
     
@@ -235,7 +233,7 @@
         
         
           <!-- compatible with older versions-->
-          28 分钟
+          13 分钟
         
       </span>
     
@@ -281,72 +279,35 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">Sentinel流量控制</h1>
+            <h1 style="display: none">双指针专题</h1>
             
             
               <div class="markdown-body">
                 
-                <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p><code>FlowSlot</code> 会根据预设的规则，结合前面 <code>NodeSelectorSlot</code>、<code>ClusterNodeBuilderSlot</code>、<code>StatistcSlot</code> 统计出来的实时信息进行流量控制。</p>
-<p>限流的直接表现是在执行 <code>Entry nodeA = SphU.entry(资源名字)</code> 的时候抛出 <code>FlowException</code> 异常。<code>FlowException</code> 是 <code>BlockException</code> 的子类，您可以捕捉 <code>BlockException</code> 来自定义被限流之后的处理逻辑。</p>
-<p>同一个资源可以对应多条限流规则。<code>FlowSlot</code> 会对该资源的所有限流规则依次遍历，直到有规则触发限流或者所有规则遍历完毕。</p>
-<p>一条限流规则主要由下面几个因素组成，我们可以组合这些元素来实现不同的限流效果：</p>
+                <h2 id="165-比较版本号"><a href="#165-比较版本号" class="headerlink" title="165. 比较版本号"></a>165. 比较版本号</h2><blockquote>
+<p><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/compare-version-numbers/description/">https://leetcode.cn/problems/compare-version-numbers/description/</a></p>
+<p>给你两个版本号 <code>version1</code> 和 <code>version2</code> ，请你比较它们。</p>
+<p>版本号由一个或多个修订号组成，各修订号由一个 <code>&#39;.&#39;</code> 连接。每个修订号由 <strong>多位数字</strong> 组成，可能包含 <strong>前导零</strong> 。每个版本号至少包含一个字符。修订号从左到右编号，下标从 0 开始，最左边的修订号下标为 0 ，下一个修订号下标为 1 ，以此类推。例如，<code>2.5.33</code> 和 <code>0.1</code> 都是有效的版本号。</p>
+<p>比较版本号时，请按从左到右的顺序依次比较它们的修订号。比较修订号时，只需比较 <strong>忽略任何前导零后的整数值</strong> 。也就是说，修订号 <code>1</code> 和修订号 <code>001</code> <strong>相等</strong> 。如果版本号没有指定某个下标处的修订号，则该修订号视为 <code>0</code> 。例如，版本 <code>1.0</code> 小于版本 <code>1.1</code> ，因为它们下标为 <code>0</code> 的修订号相同，而下标为 <code>1</code> 的修订号分别为 <code>0</code> 和 <code>1</code> ，<code>0 &lt; 1</code> 。</p>
+<p>返回规则如下：</p>
 <ul>
-<li><code>resource</code>：资源名，即限流规则的作用对象</li>
-<li><code>count</code>: 限流阈值</li>
-<li><code>grade</code>: 限流阈值类型，QPS 或线程数</li>
-<li><code>strategy</code>: 根据调用关系选择策略</li>
+<li>如果 <code>*version1* &gt; *version2*</code> 返回 <code>1</code>，</li>
+<li>如果 <code>*version1* &lt; *version2*</code> 返回 <code>-1</code>，</li>
+<li>除此之外返回 <code>0</code>。</li>
 </ul>
-<h2 id="基于QPS-x2F-并发数的流量控制"><a href="#基于QPS-x2F-并发数的流量控制" class="headerlink" title="基于QPS&#x2F;并发数的流量控制"></a>基于QPS&#x2F;并发数的流量控制</h2><p>流量控制主要有两种统计类型，一种是<strong>统计线程数</strong>，另外一种则是统计 QPS。类型由 <code>FlowRule.grade</code> 字段来定义。其中，0 代表根据并发数量来限流，1 代表根据 QPS 来进行流量控制。其中线程数、QPS 值，都是由 <code>StatisticSlot</code> 实时统计获取的。</p>
-<p>内容格式如下：</p>
-<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">idx</span> id   thread  pass  blocked   success  total Rt   <span class="hljs-number">1</span>m-pass   <span class="hljs-number">1</span>m-block   <span class="hljs-number">1</span>m-<span class="hljs-literal">all</span>   exeption<br><span class="hljs-attribute">2</span>   abc647 <span class="hljs-number">0</span>     <span class="hljs-number">46</span>     <span class="hljs-number">0</span>           <span class="hljs-number">46</span>     <span class="hljs-number">46</span>   <span class="hljs-number">1</span>       <span class="hljs-number">2763</span>      <span class="hljs-number">0</span>         <span class="hljs-number">2763</span>     <span class="hljs-number">0</span><br></code></pre></td></tr></table></figure>
+<figure class="highlight gcode"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs gcode">输入：versio<span class="hljs-symbol">n1</span> = <span class="hljs-string">&quot;1.01&quot;</span>, versio<span class="hljs-symbol">n2</span> = <span class="hljs-string">&quot;1.001&quot;</span><br>输出：<span class="hljs-number">0</span><br>解释：忽略前导零，<span class="hljs-string">&quot;01&quot;</span> 和 <span class="hljs-string">&quot;001&quot;</span> 都表示相同的整数 <span class="hljs-string">&quot;1&quot;</span><br></code></pre></td></tr></table></figure>
 
-<p>其中：</p>
-<ul>
-<li>thread： 代表当前处理该资源的线程数；</li>
-<li>pass： 代表一秒内到来到的请求；</li>
-<li>blocked： 代表一秒内被流量控制的请求数量；</li>
-<li>success： 代表一秒内成功处理完的请求；</li>
-<li>total： 代表到一秒内到来的请求以及被阻止的请求总和；</li>
-<li>RT： 代表一秒内该资源的平均响应时间；</li>
-<li>1m-pass： 则是一分钟内到来的请求；</li>
-<li>1m-block： 则是一分钟内被阻止的请求；</li>
-<li>1m-all： 则是一分钟内到来的请求和被阻止的请求的总和；</li>
-<li>exception： 则是一秒内业务本身异常的总和。</li>
-</ul>
-<h3 id="2-1-并发线程数流量控制"><a href="#2-1-并发线程数流量控制" class="headerlink" title="2.1 并发线程数流量控制"></a>2.1 并发线程数流量控制</h3><p>线程数限流用于保护业务线程数不被耗尽。</p>
-<p>Sentinel线程数限流不负责创建和管理线程池，而是简单统计当前请求上下文的线程个数，如果超出阈值，新的请求会被立即拒绝。</p>
-<h3 id="2-2-QPS流量控制"><a href="#2-2-QPS流量控制" class="headerlink" title="2.2 QPS流量控制"></a>2.2 QPS流量控制</h3><p>当 QPS 超过某个阈值的时候，则采取措施进行流量控制。流量控制的手段包括下面 3 种，对应 <code>FlowRule</code> 中的 <code>controlBehavior</code> 字段：</p>
-<h4 id="直接拒绝"><a href="#直接拒绝" class="headerlink" title="直接拒绝"></a>直接拒绝</h4><p>直接拒绝（<code>RuleConstant.CONTROL_BEHAVIOR_DEFAULT</code>）方式。该方式是默认的流量控制方式，当QPS超过任意规则的阈值后，新的请求就会被立即拒绝，拒绝方式为抛出<code>FlowException</code>。</p>
-<h4 id="冷启动"><a href="#冷启动" class="headerlink" title="冷启动"></a>冷启动</h4><p>冷启动（<code>RuleConstant.CONTROL_BEHAVIOR_WARM_UP</code>）方式。该方式主要用于系统长期处于低水位的情况下，当流量突然增加时，直接把系统拉升到高水位可能瞬间把系统压垮。通过”冷启动”，让通过的流量缓慢增加，在一定时间内逐渐增加到阈值上限，给冷系统一个预热的时间，避免冷系统被压垮的情况。</p>
-<h4 id="匀速排队"><a href="#匀速排队" class="headerlink" title="匀速排队"></a>匀速排队</h4><p>匀速器（<code>RuleConstant.CONTROL_BEHAVIOR_RATE_LIMITER</code>）方式。这种方式严格控制了请求通过的间隔时间，也即是让请求以均匀的速度通过，对应的是漏桶算法。</p>
-<p>这种方式主要用于处理间隔性突发的流量，例如消息队列。想象一下这样的场景，在某一秒有大量的请求到来，而接下来的几秒则处于空闲状态，我们希望系统能够在接下来的空闲期间逐渐处理这些请求，而不是在第一秒直接拒绝多余的请求。</p>
-<blockquote>
-<p>注意：匀速排队模式暂时不支持 QPS &gt; 1000 的场景。</p>
+<figure class="highlight gcode"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs gcode">输入：versio<span class="hljs-symbol">n1</span> = <span class="hljs-string">&quot;1.0&quot;</span>, versio<span class="hljs-symbol">n2</span> = <span class="hljs-string">&quot;1.0.0&quot;</span><br>输出：<span class="hljs-number">0</span><br>解释：versio<span class="hljs-symbol">n1</span> 没有指定下标为 <span class="hljs-number">2</span> 的修订号，即视为 <span class="hljs-string">&quot;0&quot;</span><br></code></pre></td></tr></table></figure>
+
+<figure class="highlight gcode"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs gcode">输入：versio<span class="hljs-symbol">n1</span> = <span class="hljs-string">&quot;0.1&quot;</span>, versio<span class="hljs-symbol">n2</span> = <span class="hljs-string">&quot;1.1&quot;</span><br>输出：<span class="hljs-number">-1</span><br>解释：versio<span class="hljs-symbol">n1</span> 中下标为 <span class="hljs-number">0</span> 的修订号是 <span class="hljs-string">&quot;0&quot;</span>，versio<span class="hljs-symbol">n2</span> 中下标为 <span class="hljs-number">0</span> 的修订号是 <span class="hljs-string">&quot;1&quot;</span> 。<span class="hljs-number">0</span> &lt; <span class="hljs-number">1</span>，所以 versio<span class="hljs-symbol">n1</span> &lt; versio<span class="hljs-symbol">n2</span><br></code></pre></td></tr></table></figure>
 </blockquote>
-<p><img src="https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202307022335925.png" srcset="/img/loading.gif" lazyload alt="image-20230702223524513"></p>
-<h2 id="基于调用关系的流量控制"><a href="#基于调用关系的流量控制" class="headerlink" title="基于调用关系的流量控制"></a>基于调用关系的流量控制</h2><p>调用关系包括调用方、被调用方；一个方法又可能会调用其它方法，形成一个调用链路的层次关系。Sentinel 通过 <code>NodeSelectorSlot</code> 建立不同资源间的调用的关系，并且通过 <code>ClusterBuilderSlot</code> 记录每个资源的实时统计信息。</p>
-<h3 id="3-1-根据调用方限流"><a href="#3-1-根据调用方限流" class="headerlink" title="3.1 根据调用方限流"></a>3.1 根据调用方限流</h3><p><code>ContextUtil.enter(resourceName, origin)</code> 方法中的 <code>origin</code> 参数标明了调用方身份。这些信息会在 <code>ClusterBuilderSlot</code> 中被统计。</p>
-<p>调用数据示例：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">id</span>: nodeA<br>idx origin  threadNum passedQps blockedQps totalQps aRt   1m-passed 1m-blocked 1m-total <br>1   caller1 0         0         0          0        0     0         0          0<br>2   caller2 0         0         0          0        0     0         0          0<br></code></pre></td></tr></table></figure>
-
-<p>上面这个命令展示了资源名为 <code>nodeA</code> 的资源被两个不同的调用方调用的统计。</p>
-<p>流控规则中的 <code>limitApp</code> 字段用于根据调用来源进行流量控制。该字段的值有以下三种选项，分别对应不同的场景：</p>
+<h3 id="题解一：字符串分割"><a href="#题解一：字符串分割" class="headerlink" title="题解一：字符串分割"></a>题解一：字符串分割</h3><p><strong>思路</strong>：</p>
 <ul>
-<li><code>default</code>：表示不区分调用者，来自任何调用者的请求都将进行限流统计。如果这个资源名的调用总和超过了这条规则定义的阈值，则触发限流。</li>
-<li><code>&#123;some_origin_name&#125;</code>：表示针对特定的调用者，只有来自这个调用者的请求才会进行流量控制。例如 <code>NodeA</code> 配置了一条针对调用者<code>caller1</code>的规则，那么当且仅当来自 <code>caller1</code> 对 <code>NodeA</code> 的请求才会触发流量控制。</li>
-<li><code>other</code>：表示针对除 <code>&#123;some_origin_name&#125;</code> 以外的其余调用方的流量进行流量控制。例如，资源<code>NodeA</code>配置了一条针对调用者 <code>caller1</code> 的限流规则，同时又配置了一条调用者为 <code>other</code> 的规则，那么任意来自非 <code>caller1</code> 对 <code>NodeA</code> 的调用，都不能超过 <code>other</code> 这条规则定义的阈值。</li>
+<li>由于需要忽略前导零，所以以<code>.</code>为分隔符拆分，利用<code>Integer.parseInt()</code>的特性可以直接将前导零消除，将字符串转为数字。</li>
+<li>为了优化代码结构，初始默认值设为0，这样后面不用再分别判断某一边剩余情况。</li>
 </ul>
-<p>同一个资源名可以配置多条规则，规则的生效顺序为：**{some_origin_name} &gt; other &gt; default**</p>
-<blockquote>
-<p>注意：调用来源的数目不要太多（一般不要超过几百个），否则内存占用会非常多（调用来源的统计节点最大数目&#x3D;资源数目*来源数目）。</p>
-</blockquote>
-<h3 id="3-2-根据调用链路入口限流：链路限流"><a href="#3-2-根据调用链路入口限流：链路限流" class="headerlink" title="3.2 根据调用链路入口限流：链路限流"></a>3.2 根据调用链路入口限流：链路限流</h3><p><code>NodeSelectorSlot</code> 中记录了资源之间的调用链路，这些资源通过调用关系，相互之间构成一棵调用树。这棵树的根节点是一个名字为 <code>machine-root</code> 的虚拟节点，调用链的入口都是这个虚节点的子节点。</p>
-<p>一棵典型的调用树如下图所示：</p>
-<figure class="highlight livescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs livescript">          machine-root<br>              /       <span class="hljs-string">\</span><br>             /         <span class="hljs-string">\</span><br>       Entrance1     Entrance2<br>          /             <span class="hljs-string">\</span><br>         /               <span class="hljs-string">\</span><br>DefaultNode(nodeA)   DefaultNode(nodeA)<br></code></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-type">int</span> <span class="hljs-title function_">compareVersion</span><span class="hljs-params">(String version1, String version2)</span> &#123;<br>    String[] split1 = version1.split(<span class="hljs-string">&quot;\\.&quot;</span>);<br>    String[] split2 = version2.split(<span class="hljs-string">&quot;\\.&quot;</span>);<br>    <span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>, j = <span class="hljs-number">0</span>;<br>    <span class="hljs-keyword">while</span> (i &lt; split1.length || j &lt; split2.length) &#123;<br>        <span class="hljs-comment">// 这里赋默认值为0：当某一version分割后数组长度短时，需要继续对另一个version进行判断，就和0比较</span><br>        <span class="hljs-type">int</span> <span class="hljs-variable">v1</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>, v2 = <span class="hljs-number">0</span>;<br>        <span class="hljs-keyword">if</span> (i &lt; split1.length) &#123;<br>            v1 = Integer.parseInt(split1[i]);<br>        &#125;<br>        <span class="hljs-keyword">if</span> (j &lt; split2.length) &#123;<br>            v2 = Integer.parseInt(split2[j]);<br>        &#125;<br>        <span class="hljs-keyword">if</span> (v1 &gt; v2) &#123;<br>            <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;<br>        &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (v1 &lt; v2) &#123;<br>            <span class="hljs-keyword">return</span> -<span class="hljs-number">1</span>;<br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            i++;<br>            j++;<br>        &#125;<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
 
-<p>上图中来自入口 <code>Entrance1</code> 和 <code>Entrance2</code> 的请求都调用到了资源 <code>NodeA</code>，Sentinel 允许只根据某个入口的统计信息对资源限流。比如我们可以设置 <code>strategy</code> 为 <code>RuleConstant.STRATEGY_CHAIN</code>，同时设置 <code>refResource</code> 为 <code>Entrance1</code> 来表示只有从入口 <code>Entrance1</code> 的调用才会记录到 <code>NodeA</code> 的限流统计当中，而不关心经 <code>Entrance2</code> 到来的调用。</p>
-<p>调用链的入口（上下文）是通过 API 方法 <code>ContextUtil.enter(contextName)</code> 定义的，其中 contextName 即对应调用链路入口名称。</p>
-<h3 id="3-3-具有关系的资源流量控制：关联流量控制"><a href="#3-3-具有关系的资源流量控制：关联流量控制" class="headerlink" title="3.3 具有关系的资源流量控制：关联流量控制"></a>3.3 具有关系的资源流量控制：关联流量控制</h3><p>当两个资源之间具有资源争抢或者依赖关系的时候，这两个资源便具有了关联。比如对数据库同一个字段的读操作和写操作存在争抢，读的速度过高会影响写得速度，写的速度过高会影响读的速度。如果放任读写操作争抢资源，则争抢本身带来的开销会降低整体的吞吐量。可使用关联限流来避免具有关联关系的资源之间过度的争抢，举例来说，<code>read_db</code> 和 <code>write_db</code> 这两个资源分别代表数据库读写，我们<strong>可以给 <code>read_db</code> 设置限流规则来达到写优先的目的：设置 <code>strategy</code> 为 <code>RuleConstant.STRATEGY_RELATE</code> 同时设置 <code>refResource</code> 为 <code>write_db</code>。这样当写库操作过于频繁时，读数据的请求会被限流</strong>。</p>
 
                 
               </div>
@@ -365,7 +326,7 @@
     
       <span class="category-chain">
         
-  <a href="/categories/Sentinel/" class="category-chain-item">Sentinel</a>
+  <a href="/categories/%E7%AE%97%E6%B3%95/" class="category-chain-item">算法</a>
   
   
 
@@ -380,7 +341,7 @@
     <div class="post-meta">
       <i class="iconfont icon-tags"></i>
       
-        <a href="/tags/%E5%90%8E%E7%AB%AF/">#后端</a>
+        <a href="/tags/%E5%8F%8C%E6%8C%87%E9%92%88/">#双指针</a>
       
     </div>
   
@@ -392,8 +353,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>Sentinel流量控制</div>
-      <div>https://floweryu.github.io/Sentinel/Sentinel流量控制/</div>
+      <div>双指针专题</div>
+      <div>https://floweryu.github.io/算法笔记/双指针专题/</div>
     </div>
     <div class="license-meta">
       
@@ -405,7 +366,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2023年7月4日</div>
+          <div>2023年7月9日</div>
         </div>
       
       
@@ -437,9 +398,9 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/Sentinel/Sentinel%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5/" title="Sentinel基础概念">
+                      <a href="/%E7%AE%97%E6%B3%95%E7%AC%94%E8%AE%B0/%E5%89%91%E6%8C%87offer%E4%B8%93%E9%A2%98/" title="剑指Offer专题">
                         <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">Sentinel基础概念</span>
+                        <span class="hidden-mobile">剑指Offer专题</span>
                         <span class="visible-mobile">上一篇</span>
                       </a>
                     
@@ -447,8 +408,8 @@
                   <article class="post-next col-6">
                     
                     
-                      <a href="/Sentinel/Sentinel%E9%9B%86%E7%BE%A4%E6%B5%81%E6%8E%A7/" title="Sentinel集群流控（未完待续）">
-                        <span class="hidden-mobile">Sentinel集群流控（未完待续）</span>
+                      <a href="/%E7%AE%97%E6%B3%95%E7%AC%94%E8%AE%B0/%E5%B8%B8%E7%94%A8%E7%AE%97%E6%B3%95%E7%A7%AF%E7%B4%AF/" title="常用算法积累">
+                        <span class="hidden-mobile">常用算法积累</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>

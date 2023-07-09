@@ -1,0 +1,767 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202306262243645.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="剑指 Offer II 083. 没有重复元素集合的全排列 https:&#x2F;&#x2F;leetcode.cn&#x2F;problems&#x2F;VvJkup&#x2F;description&#x2F; 给定一个不含重复数字的整数数组 nums ，返回其 所有可能的全排列 。可以 按任意顺序 返回答案。 12输入：nums &#x3D; [1,2,3]输出：[[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]">
+<meta property="og:type" content="article">
+<meta property="og:title" content="递归回溯专题">
+<meta property="og:url" content="https://floweryu.github.io/%E7%AE%97%E6%B3%95%E7%AC%94%E8%AE%B0/%E9%80%92%E5%BD%92%E5%9B%9E%E6%BA%AF%E4%B8%93%E9%A2%98/index.html">
+<meta property="og:site_name" content="Floweryu">
+<meta property="og:description" content="剑指 Offer II 083. 没有重复元素集合的全排列 https:&#x2F;&#x2F;leetcode.cn&#x2F;problems&#x2F;VvJkup&#x2F;description&#x2F; 给定一个不含重复数字的整数数组 nums ，返回其 所有可能的全排列 。可以 按任意顺序 返回答案。 12输入：nums &#x3D; [1,2,3]输出：[[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202307092108737.png">
+<meta property="article:published_time" content="2023-07-09T19:00:00.000Z">
+<meta property="article:modified_time" content="2023-07-09T19:00:00.000Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="递归">
+<meta property="article:tag" content="回溯">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202307092108737.png">
+  
+  
+  
+  <title>递归回溯专题 - Floweryu</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"floweryu.github.io","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"xjWdXlr0DYtQEL9pXlSy1Con-gzGzoHsz","app_key":"gZfYmz5aMUHWijIXVVi3xDNk","server_url":"https://xjwdxlr0.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":true}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Floweryu&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="递归回溯专题"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-07-09 19:00" pubdate>
+          2023-07-09 07:00:00
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          8.3k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          69 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">递归回溯专题</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="剑指-Offer-II-083-没有重复元素集合的全排列"><a href="#剑指-Offer-II-083-没有重复元素集合的全排列" class="headerlink" title="剑指 Offer II 083. 没有重复元素集合的全排列"></a>剑指 Offer II 083. 没有重复元素集合的全排列</h2><blockquote>
+<p><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/VvJkup/description/">https://leetcode.cn/problems/VvJkup/description/</a></p>
+<p>给定一个不含重复数字的整数数组 <code>nums</code> ，返回其 <strong>所有可能的全排列</strong> 。可以 <strong>按任意顺序</strong> 返回答案。</p>
+<figure class="highlight inform7"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs inform7">输入：nums = <span class="hljs-comment">[1,2,3]</span><br>输出：<span class="hljs-comment">[<span class="hljs-comment">[1,2,3]</span>,<span class="hljs-comment">[1,3,2]</span>,<span class="hljs-comment">[2,1,3]</span>,<span class="hljs-comment">[2,3,1]</span>,<span class="hljs-comment">[3,1,2]</span>,<span class="hljs-comment">[3,2,1]</span>]</span><br></code></pre></td></tr></table></figure>
+</blockquote>
+<h4 id="题解：回溯"><a href="#题解：回溯" class="headerlink" title="题解：回溯"></a>题解：回溯</h4><p><strong>可以将此问题看作有<code>n</code>个排列成一行的空格，需要从左往右依次填入题目给定的<code>n</code>个数，每个数只能用一次。</strong></p>
+<p>定义递归函数<code>backTrack(res, tmp n, first)</code>表示从左往右填到第<code>first</code>个位置，当前排列为<code>tmp</code>，递归分下面两种情况：</p>
+<ul>
+<li>如果<code>first==n</code>说明已经填完了<code>n</code>个位置（下标从0开始），找到一个可行的解，将<code>tmp</code>放入答案中。</li>
+<li>如果<code>first &lt; n</code>，需要考虑第<code>first</code>个位置需要填哪个数。题目要求不能填重复的数，所以需要把填过的数和未填过的数区分开。</li>
+</ul>
+<p>如何区分填过的数和未填过的数？</p>
+<p>假设已经填到第<code>first</code>个位置，则<code>nums</code>数组中<code>[0, first-1]</code>是已经填过的数的集合，<code>[first, n-1]</code>是待填的数的集合。所以肯定用<code>[first, n-1]</code>里面的数去填第<code>first</code>个数。假设待填的数下标为<code>i</code>，填完后将第<code>i</code>个数和第<code>first</code>个数交换，即能使得在填第 <code>first+1</code>个数的时候 <code>nums</code>数组的<code>[0,first]</code> 部分为已填过的数，<code>[first+1,n−1]</code> 为待填的数，回溯的时候交换回来即能完成撤销操作。</p>
+<p>举个简单的例子，假设我们有<code>[2,5,8,9,10]</code> 这 5 个数要填入，已经填到第 3个位置，已经填了 <code>[8,9]</code> 两个数，那么这个数组目前为 <code>[8,9 ∣ 2,5,10]</code> 这样的状态，分隔符区分了左右两个部分。假设这个位置我们要填 10这个数，为了维护数组，我们将 2 和 10 交换，即能使得数组继续保持分隔符左边的数已经填过，右边的待填<code>[8,9,10 ∣ 2,5]</code> </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> List&lt;List&lt;Integer&gt;&gt; <span class="hljs-title function_">permute</span><span class="hljs-params">(<span class="hljs-type">int</span>[] nums)</span> &#123;<br>    List&lt;List&lt;Integer&gt;&gt; res = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;();<br>    List&lt;Integer&gt; tmp = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;();<br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> num : nums) &#123;<br>        tmp.add(num);<br>    &#125;<br>    backTrack(res, tmp, nums.length - <span class="hljs-number">1</span>, <span class="hljs-number">0</span>);<br>    <span class="hljs-keyword">return</span> res;<br>&#125;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">backTrack</span><span class="hljs-params">(List&lt;List&lt;Integer&gt;&gt; res, List&lt;Integer&gt; tmp, <span class="hljs-type">int</span> n, <span class="hljs-type">int</span> first)</span> &#123;<br>    <span class="hljs-keyword">if</span> (first == n) &#123;<br>        <span class="hljs-comment">// 这里需要拷贝一份，否则后面修改会改变tmp数组的值</span><br>        res.add(<span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;(tmp));<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> first; i &lt;= n; i++) &#123;<br>            Collections.swap(tmp, first, i);<br>            backTrack(res, tmp, n, first + <span class="hljs-number">1</span>);<br>            <span class="hljs-comment">// 这里需要还原现场，否则first位只交换一次</span><br>            Collections.swap(tmp, first, i);<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="剑指-Offer-II-084-含有重复元素集合的全排列"><a href="#剑指-Offer-II-084-含有重复元素集合的全排列" class="headerlink" title="剑指 Offer II 084. 含有重复元素集合的全排列"></a>剑指 Offer II 084. 含有重复元素集合的全排列</h2><blockquote>
+<p><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/7p8L0Z/">https://leetcode.cn/problems/7p8L0Z/</a></p>
+<p>给定一个可包含重复数字的整数集合 <code>nums</code> ，<strong>按任意顺序</strong> 返回它所有不重复的全排列。</p>
+<figure class="highlight inform7"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs inform7">输入：nums = <span class="hljs-comment">[1,1,2]</span><br>输出：<br><span class="hljs-comment">[<span class="hljs-comment">[1,1,2]</span>,</span><br><span class="hljs-comment"> <span class="hljs-comment">[1,2,1]</span>,</span><br><span class="hljs-comment"> <span class="hljs-comment">[2,1,1]</span>]</span><br></code></pre></td></tr></table></figure>
+</blockquote>
+<h4 id="题解：回溯-1"><a href="#题解：回溯-1" class="headerlink" title="题解：回溯"></a>题解：回溯</h4><p>定义递归函数 <code>backtrack(idx,perm)</code>表示当前排列为 <code>perm</code>，下一个待填入的位置是第 <code>idx</code>个位置（下标从 0 开始）。那么整个递归函数分为两个情况：</p>
+<ul>
+<li>如果<code>idx == n</code>，说明已经填完第<code>n</code>个位置，找到一个可行的解。</li>
+<li>如果<code>idx &lt; n</code>，需要考虑第<code>idx</code>填哪一个数，题目要求不能填已经填过的数，所以需要一个标记数组<code>visited</code>标记已经填过的数。在填第<code>idx</code>个数的时候遍历题目给的<code>n</code>个数，如果没有被标记则填入，然后继续尝试下一个位置，即<code>backTrack(perm, idx + 1)</code>。回溯时要撤销该位置填的数和标记。</li>
+<li>为了解决重复填值的问题，设定一个规则：保证在填第<code>idx</code>个数的时候重复数字只填入一次。对原数组进行排序，保证相同数字相邻，然后每次填入的数一定是从左往右第一个未被填过的数字。即<code>i &gt; 0 &amp;&amp; nums[i] == nums[i - 1] &amp;&amp; !visited[i - 1]</code></li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> List&lt;List&lt;Integer&gt;&gt; <span class="hljs-title function_">permuteUnique</span><span class="hljs-params">(<span class="hljs-type">int</span>[] nums)</span> &#123;<br>    List&lt;List&lt;Integer&gt;&gt; res = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;();<br>    List&lt;Integer&gt; tmp = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;();<br>    <span class="hljs-comment">// 先把数组排序，这样在回溯中可以防止重复元素</span><br>    Arrays.sort(nums);<br>    <span class="hljs-comment">// 递归过程中标记该位置元素是否已经使用过</span><br>    <span class="hljs-type">boolean</span>[] visited = <span class="hljs-keyword">new</span> <span class="hljs-title class_">boolean</span>[nums.length];<br>    <span class="hljs-comment">// idx：当前填充的元素位置</span><br>    backTrack(nums, res, tmp, visited, <span class="hljs-number">0</span>);<br>    <span class="hljs-keyword">return</span> res;<br>&#125;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">backTrack</span><span class="hljs-params">(<span class="hljs-type">int</span>[] nums, List&lt;List&lt;Integer&gt;&gt; res, List&lt;Integer&gt; tmp, <span class="hljs-type">boolean</span>[] visited, <span class="hljs-type">int</span> idx)</span> &#123;<br>    <span class="hljs-comment">// 此时说明得到一个结果</span><br>    <span class="hljs-keyword">if</span> (idx == nums.length) &#123;<br>        <span class="hljs-comment">// 拷贝一份是因为tmp在递归过程中可能会变</span><br>        res.add(<span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;(tmp));<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>; i &lt; nums.length; i++) &#123;<br>            <span class="hljs-comment">// 如果i位置元素已经被访问到 或者 nums[i] == nums[i - 1]并且前一个数未被访问 直接跳过</span><br>            <span class="hljs-comment">// 第二个条件：保证每次填入的数是从左到右第一个未被填入的数字</span><br>            <span class="hljs-keyword">if</span> (visited[i] || (i &gt; <span class="hljs-number">0</span> &amp;&amp; nums[i] == nums[i - <span class="hljs-number">1</span>] &amp;&amp; !visited[i - <span class="hljs-number">1</span>])) &#123;<br>                <span class="hljs-keyword">continue</span>;<br>            &#125;<br>            <span class="hljs-comment">// 将通过条件的元素添加</span><br>            tmp.add(nums[i]);<br>            <span class="hljs-comment">// 标记已访问</span><br>            visited[i] = <span class="hljs-literal">true</span>;<br>            backTrack(nums, res, tmp, visited, idx + <span class="hljs-number">1</span>);<br>            <span class="hljs-comment">// 回溯嘛，，需要还原现场，比如获取到一个数组[1,2,3], 还有[1,3,2]，这个2后面可能再用</span><br>            visited[i] = <span class="hljs-literal">false</span>;<br>            tmp.remove(idx);<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="200-岛屿数量"><a href="#200-岛屿数量" class="headerlink" title="200. 岛屿数量"></a>200. 岛屿数量</h2><blockquote>
+<p><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/number-of-islands/">https://leetcode.cn/problems/number-of-islands/</a></p>
+<p>给你一个由 <code>&#39;1&#39;</code>（陆地）和 <code>&#39;0&#39;</code>（水）组成的的二维网格，请你计算网格中岛屿的数量。</p>
+<p>岛屿总是被水包围，并且每座岛屿只能由水平方向和&#x2F;或竖直方向上相邻的陆地连接形成。</p>
+<p>此外，你可以假设该网格的四条边均被水包围。</p>
+<figure class="highlight prolog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs prolog">输入：grid = [<br>  [<span class="hljs-string">&quot;1&quot;</span>,<span class="hljs-string">&quot;1&quot;</span>,<span class="hljs-string">&quot;1&quot;</span>,<span class="hljs-string">&quot;1&quot;</span>,<span class="hljs-string">&quot;0&quot;</span>],<br>  [<span class="hljs-string">&quot;1&quot;</span>,<span class="hljs-string">&quot;1&quot;</span>,<span class="hljs-string">&quot;0&quot;</span>,<span class="hljs-string">&quot;1&quot;</span>,<span class="hljs-string">&quot;0&quot;</span>],<br>  [<span class="hljs-string">&quot;1&quot;</span>,<span class="hljs-string">&quot;1&quot;</span>,<span class="hljs-string">&quot;0&quot;</span>,<span class="hljs-string">&quot;0&quot;</span>,<span class="hljs-string">&quot;0&quot;</span>],<br>  [<span class="hljs-string">&quot;0&quot;</span>,<span class="hljs-string">&quot;0&quot;</span>,<span class="hljs-string">&quot;0&quot;</span>,<span class="hljs-string">&quot;0&quot;</span>,<span class="hljs-string">&quot;0&quot;</span>]<br>]<br>输出：<span class="hljs-number">1</span><br></code></pre></td></tr></table></figure>
+</blockquote>
+<h4 id="题解：网格回溯模板"><a href="#题解：网格回溯模板" class="headerlink" title="题解：网格回溯模板"></a>题解：网格回溯模板</h4><blockquote>
+<p>参考答案：<a target="_blank" rel="noopener" href="https://leetcode.cn/problems/number-of-islands/solutions/211211/dao-yu-lei-wen-ti-de-tong-yong-jie-fa-dfs-bian-li-/">https://leetcode.cn/problems/number-of-islands/solutions/211211/dao-yu-lei-wen-ti-de-tong-yong-jie-fa-dfs-bian-li-/</a></p>
+</blockquote>
+<p>主要思路：在递归过程中对每次递归走到的点位赋值，最后统计有多少个岛屿点位即可。例如：每次递归都将能走过的点位置2，这样每次退出递归时该次递归寻找的岛屿都是2（同时原来矩阵中数值也变成2），所以最后只需要统计原来矩阵有多少个1开始遍历的次数即可。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-type">int</span> <span class="hljs-title function_">numIslands</span><span class="hljs-params">(<span class="hljs-type">char</span>[][] grid)</span> &#123;<br>    <span class="hljs-type">int</span> <span class="hljs-variable">count</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>;<br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>; i &lt; grid.length; i++) &#123;<br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">j</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>; j &lt; grid[<span class="hljs-number">0</span>].length; j++) &#123;<br>            <span class="hljs-comment">// 从陆地开始递归，</span><br>            <span class="hljs-keyword">if</span> (grid[i][j] == <span class="hljs-string">&#x27;1&#x27;</span>) &#123;<br>                dfs(grid, i, j);<br>                <span class="hljs-comment">// 因为在递归过程中已经访问过的点标记为2，所以每次递归都会把岛屿的点都变成2，这里使用统计剩下1的数量即可</span><br>                count++;<br>            &#125;<br>        &#125;<br>    &#125;<br>    <span class="hljs-keyword">return</span> count;<br>&#125;<br><br><span class="hljs-comment">// 网格递归遍历基本模板</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">dfs</span><span class="hljs-params">(<span class="hljs-type">char</span>[][] grid, <span class="hljs-type">int</span> i, <span class="hljs-type">int</span> j)</span> &#123;<br>    <span class="hljs-comment">// 如果超出网格边界，直接返回</span><br>    <span class="hljs-keyword">if</span> (i &lt; <span class="hljs-number">0</span> || i &gt;= grid.length || j &lt; <span class="hljs-number">0</span> || j &gt;= grid[<span class="hljs-number">0</span>].length) &#123;<br>        <span class="hljs-keyword">return</span>;<br>    &#125;<br>    <span class="hljs-comment">// 如果不是陆地, 结束递归</span><br>    <span class="hljs-keyword">if</span> (grid[i][j] != <span class="hljs-string">&#x27;1&#x27;</span>) &#123;<br>        <span class="hljs-keyword">return</span>;<br>    &#125;<br>    <span class="hljs-comment">// 将递归后的陆地标记一下，不然会循环递归</span><br>    grid[i][j] = <span class="hljs-string">&#x27;2&#x27;</span>;<br>    dfs(grid, i - <span class="hljs-number">1</span>, j);<br>    dfs(grid, i + <span class="hljs-number">1</span>, j);<br>    dfs(grid, i, j - <span class="hljs-number">1</span>);<br>    dfs(grid, i, j + <span class="hljs-number">1</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="剑指-Offer-38-字符串的排列"><a href="#剑指-Offer-38-字符串的排列" class="headerlink" title="剑指 Offer 38. 字符串的排列"></a>剑指 Offer 38. 字符串的排列</h2><blockquote>
+<p><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/zi-fu-chuan-de-pai-lie-lcof/">https://leetcode.cn/problems/zi-fu-chuan-de-pai-lie-lcof/</a></p>
+<p>输入一个字符串，打印出该字符串中字符的所有排列。</p>
+<p>你可以以任意顺序返回这个字符串数组，但里面不能有重复元素。</p>
+<figure class="highlight prolog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs prolog">输入：s = <span class="hljs-string">&quot;abc&quot;</span><br>输出：[<span class="hljs-string">&quot;abc&quot;</span>,<span class="hljs-string">&quot;acb&quot;</span>,<span class="hljs-string">&quot;bac&quot;</span>,<span class="hljs-string">&quot;bca&quot;</span>,<span class="hljs-string">&quot;cab&quot;</span>,<span class="hljs-string">&quot;cba&quot;</span>]<br></code></pre></td></tr></table></figure>
+</blockquote>
+<h4 id="题解-回溯"><a href="#题解-回溯" class="headerlink" title="题解: 回溯"></a>题解: 回溯</h4><blockquote>
+<p>题解一样：剑指 Offer II 084. 含有重复元素集合的全排列 <a target="_blank" rel="noopener" href="https://leetcode.cn/problems/7p8L0Z/">https://leetcode.cn/problems/7p8L0Z/</a></p>
+</blockquote>
+<p>只是将数字换成了字符</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> String[] permutation(String s) &#123;<br>    List&lt;String&gt; res = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;();<br>    <span class="hljs-type">StringBuilder</span> <span class="hljs-variable">sb</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">StringBuilder</span>();<br>    <span class="hljs-type">boolean</span>[] visited = <span class="hljs-keyword">new</span> <span class="hljs-title class_">boolean</span>[s.length()];<br>    <span class="hljs-comment">// 将字符串转为数组，这样就和整数数组全排列一致</span><br>    <span class="hljs-type">char</span>[] chars = s.toCharArray();<br>    <span class="hljs-comment">// 排序是为了后面去重</span><br>    Arrays.sort(chars);<br>    backTrack(res, visited, sb, chars, <span class="hljs-number">0</span>);<br>    <span class="hljs-keyword">return</span> res.toArray(<span class="hljs-keyword">new</span> <span class="hljs-title class_">String</span>[]&#123;&#125;);<br>&#125;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">backTrack</span><span class="hljs-params">(List&lt;String&gt; res, <span class="hljs-type">boolean</span>[] visited, StringBuilder sb, <span class="hljs-type">char</span>[] chars, <span class="hljs-type">int</span> idx)</span> &#123;<br>    <span class="hljs-comment">// 填充元素的下标满足个数后，获取当前结果</span><br>    <span class="hljs-keyword">if</span> (idx == chars.length) &#123;<br>        <span class="hljs-comment">// 这里sb.toString()里面已经拷贝了一份</span><br>        res.add(sb.toString());<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>; i &lt; chars.length; i++) &#123;<br>            <span class="hljs-comment">// 如果i位置元素已经被访问到 或者 chars[i] == chars[i - 1]并且前一个数未被访问 直接跳过</span><br>            <span class="hljs-comment">// 第二个条件：保证每次填入的数是从左到右第一个未被填入的字符</span><br>            <span class="hljs-keyword">if</span> (visited[i] || (i &gt; <span class="hljs-number">0</span> &amp;&amp; chars[i] == chars[i - <span class="hljs-number">1</span>] &amp;&amp; !visited[i - <span class="hljs-number">1</span>])) &#123;<br>                <span class="hljs-keyword">continue</span>;<br>            &#125;<br>            <span class="hljs-comment">// 标记已经被访问</span><br>            visited[i] = <span class="hljs-literal">true</span>;<br>            sb.append(chars[i]);<br>            backTrack(res, visited, sb, chars, idx + <span class="hljs-number">1</span>);<br>            <span class="hljs-comment">// 回溯嘛，，需要还原现场，比如获取到一个数组[1,2,3], 还有[1,3,2]，这个2后面可能再用</span><br>            sb.deleteCharAt(idx);<br>            visited[i] = <span class="hljs-literal">false</span>;<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="22-括号生成"><a href="#22-括号生成" class="headerlink" title="22. 括号生成"></a>22. 括号生成</h2><blockquote>
+<p><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/generate-parentheses/">https://leetcode.cn/problems/generate-parentheses/</a></p>
+<p>数字 <code>n</code> 代表生成括号的对数，请你设计一个函数，用于能够生成所有可能的并且 <strong>有效的</strong> 括号组合。</p>
+<figure class="highlight excel"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs excel">输入：<span class="hljs-built_in">n</span> = <span class="hljs-number">3</span><br>输出：[<span class="hljs-string">&quot;((()))&quot;</span>,<span class="hljs-string">&quot;(()())&quot;</span>,<span class="hljs-string">&quot;(())()&quot;</span>,<span class="hljs-string">&quot;()(())&quot;</span>,<span class="hljs-string">&quot;()()()&quot;</span>]<br></code></pre></td></tr></table></figure>
+</blockquote>
+<h4 id="题解：回溯-2"><a href="#题解：回溯-2" class="headerlink" title="题解：回溯"></a>题解：回溯</h4><p>只在序列有效时才添加<code>(</code>或<code>)</code>：</p>
+<ul>
+<li>如果左括号数量不大于<code>n</code>，则添加一个左括号。</li>
+<li>如果右括号数量小于左括号数量，可以添加一个右括号。</li>
+<li>在每次添加完递归出来需要删除进行回溯。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> List&lt;String&gt; <span class="hljs-title function_">generateParenthesis</span><span class="hljs-params">(<span class="hljs-type">int</span> n)</span> &#123;<br>    List&lt;String&gt; res = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;();<br>    dfs(res, n, <span class="hljs-keyword">new</span> <span class="hljs-title class_">StringBuilder</span>(), <span class="hljs-number">0</span>, <span class="hljs-number">0</span>);<br>    <span class="hljs-keyword">return</span> res;<br>&#125;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">dfs</span><span class="hljs-params">(List&lt;String&gt; res, <span class="hljs-type">int</span> n, StringBuilder sb, <span class="hljs-type">int</span> open, <span class="hljs-type">int</span> close)</span> &#123;<br>    <span class="hljs-keyword">if</span> (sb.length() == <span class="hljs-number">2</span> * n) &#123;<br>        res.add(sb.toString());<br>        <span class="hljs-keyword">return</span>;<br>    &#125;<br>    <span class="hljs-comment">// 先添加左括号</span><br>    <span class="hljs-keyword">if</span> (open &lt; n) &#123;<br>        sb.append(<span class="hljs-string">&quot;(&quot;</span>);<br>        dfs(res, n, sb, open + <span class="hljs-number">1</span>, close);<br>        <span class="hljs-comment">// 删除完右括号后, 会退出到这里, 删除一个左括号</span><br>        <span class="hljs-comment">// 然后又进入dfs递归, 这时close &lt; open, 就会添加), 即(()</span><br>        sb.deleteCharAt(sb.length() - <span class="hljs-number">1</span>);<br>    &#125;<br><br>    <span class="hljs-comment">// 左括号满后, 添加对应数量的右括号</span><br>    <span class="hljs-keyword">if</span> (close &lt; open) &#123;<br>        sb.append(<span class="hljs-string">&quot;)&quot;</span>);<br>        dfs(res, n, sb, open, close + <span class="hljs-number">1</span>);<br>        <span class="hljs-comment">// 右括号满后, 会从这里开始出栈, 逐步删除右括号</span><br>        sb.deleteCharAt(sb.length() - <span class="hljs-number">1</span>);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="剑指-Offer-II-112-最长递增路径"><a href="#剑指-Offer-II-112-最长递增路径" class="headerlink" title="剑指 Offer II 112. 最长递增路径"></a>剑指 Offer II 112. 最长递增路径</h2><blockquote>
+<p><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/fpTFWP/description/">https://leetcode.cn/problems/fpTFWP/description/</a></p>
+<p>给定一个 <code>m x n</code> 整数矩阵 <code>matrix</code> ，找出其中 <strong>最长递增路径</strong> 的长度。</p>
+<p>对于每个单元格，你可以往上，下，左，右四个方向移动。 <strong>不能</strong> 在 <strong>对角线</strong> 方向上移动或移动到 <strong>边界外</strong>（即不允许环绕）。</p>
+<p><img src="https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202307092108737.png" srcset="/img/loading.gif" lazyload alt="image-20230528200917267"></p>
+</blockquote>
+<h4 id="题解：回溯-3"><a href="#题解：回溯-3" class="headerlink" title="题解：回溯"></a>题解：回溯</h4><p>使用记忆化深度优先搜索，当访问到一个单元格 <code>(i,j)</code> 时，如果<code>memo[i][j] !=0 </code>，说明该单元格的结果已经计算过，则直接从缓存中读取结果，如果<code> memo[i][j] ==0</code>，说明该单元格的结果尚未被计算过，则进行搜索，并将计算得到的结果存入缓存中。</p>
+<ul>
+<li><code>memo[i][j]</code>存储当前点位最大路径值。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Solution</span> &#123;<br>    <span class="hljs-comment">// 四个方向</span><br>    &#123;% raw %&#125;<span class="hljs-keyword">private</span> <span class="hljs-type">int</span>[][] dirs = &#123;&#123;-<span class="hljs-number">1</span>, <span class="hljs-number">0</span>&#125;, &#123;<span class="hljs-number">1</span>, <span class="hljs-number">0</span>&#125;, &#123;<span class="hljs-number">0</span>, -<span class="hljs-number">1</span>&#125;, &#123;<span class="hljs-number">0</span>, <span class="hljs-number">1</span>&#125;&#125;;&#123;% endraw %&#125;<br>    <span class="hljs-keyword">private</span> <span class="hljs-type">int</span> rows, cols;<br>    <span class="hljs-keyword">public</span> <span class="hljs-type">int</span> <span class="hljs-title function_">longestIncreasingPath</span><span class="hljs-params">(<span class="hljs-type">int</span>[][] matrix)</span> &#123;<br>        <span class="hljs-keyword">if</span> (matrix == <span class="hljs-literal">null</span> || matrix.length == <span class="hljs-number">0</span> || matrix[<span class="hljs-number">0</span>].length == <span class="hljs-number">0</span>) &#123;<br>            <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>        &#125;<br>        rows = matrix.length;<br>        cols = matrix[<span class="hljs-number">0</span>].length;<br>        <span class="hljs-comment">// 记忆矩阵: 记录遍历当前点位时最大路径</span><br>        <span class="hljs-type">int</span>[][] memo = <span class="hljs-keyword">new</span> <span class="hljs-title class_">int</span>[rows][cols];<br>        <span class="hljs-type">int</span> <span class="hljs-variable">ans</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>;<br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>; i &lt; rows; i++) &#123;<br>            <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">j</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>; j &lt; cols; j++) &#123;<br>                <span class="hljs-comment">// 遍历每个矩阵点位</span><br>                ans = Math.max(ans, dfs(matrix, i, j, memo));<br>            &#125;<br>        &#125;<br>        <span class="hljs-keyword">return</span> ans;<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-type">int</span> <span class="hljs-title function_">dfs</span><span class="hljs-params">(<span class="hljs-type">int</span>[][] matrix, <span class="hljs-type">int</span> i, <span class="hljs-type">int</span> j, <span class="hljs-type">int</span>[][] memo)</span> &#123;<br>        <span class="hljs-comment">// 如果当前点位已经遍历过，返回当前点位时路径长度</span><br>        <span class="hljs-keyword">if</span> (memo[i][j] != <span class="hljs-number">0</span>) &#123;<br>            <span class="hljs-keyword">return</span> memo[i][j];<br>        &#125;<br>        <span class="hljs-comment">// 遍历到当前定位, 则路径+1</span><br>        <span class="hljs-comment">// 这里先把当前这个点路长度算出来，最短就只包含当前点长度1，下面那个dfs中的+1不一定能走的到，不满足递增的话就不走那里了，这样当前点局部最长路径长度依旧要赋值为1</span><br>        memo[i][j]++;<br>        <span class="hljs-comment">// 遍历四个方向</span><br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span>[] dir : dirs) &#123;<br>            <span class="hljs-type">int</span> <span class="hljs-variable">newI</span> <span class="hljs-operator">=</span> i + dir[<span class="hljs-number">0</span>], newJ = j + dir[<span class="hljs-number">1</span>];<br>            <span class="hljs-comment">// 1. 判断是否越界</span><br>            <span class="hljs-comment">// 2. 判断下一步遍历的点位值是否比当前值大(贪心)</span><br>            <span class="hljs-keyword">if</span> (newI &gt;= <span class="hljs-number">0</span> &amp;&amp; newI &lt; rows &amp;&amp; newJ &gt;= <span class="hljs-number">0</span> &amp;&amp; newJ &lt; cols &amp;&amp; matrix[newI][newJ] &gt; matrix[i][j]) &#123;<br>                <span class="hljs-comment">// 每次递归路径值+1, 最后获取最大值</span><br>                memo[i][j] = Math.max(memo[i][j], dfs(matrix, newI, newJ, memo) + <span class="hljs-number">1</span>);<br>            &#125;<br>        &#125;<br>        <span class="hljs-keyword">return</span> memo[i][j];<br>    &#125; <br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%AE%97%E6%B3%95/" class="category-chain-item">算法</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E9%80%92%E5%BD%92/">#递归</a>
+      
+        <a href="/tags/%E5%9B%9E%E6%BA%AF/">#回溯</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>递归回溯专题</div>
+      <div>https://floweryu.github.io/算法笔记/递归回溯专题/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>John Doe</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年7月9日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/%E7%AE%97%E6%B3%95%E7%AC%94%E8%AE%B0/%E7%BA%A2%E9%BB%91%E6%A0%91%E8%AF%A6%E8%A7%A3/" title="红黑树">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">红黑树</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/%E7%AE%97%E6%B3%95%E7%AC%94%E8%AE%B0/%E9%93%BE%E8%A1%A8%E4%B8%93%E9%A2%98/" title="链表专题">
+                        <span class="hidden-mobile">链表专题</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

@@ -1,0 +1,797 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202306262243645.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="剑指 Offer 03. 数组中重复的数字 https:&#x2F;&#x2F;leetcode.cn&#x2F;problems&#x2F;shu-zu-zhong-zhong-fu-de-shu-zi-lcof&#x2F;?favorite&#x3D;xb9nqhhg 找出数组中重复的数字。 在一个长度为 n 的数组 nums 里的所有数字都在 0～n-1 的范围内。数组中某些数字是重复的，但不知道有几个数字重复了，也不知道每个数字重复了几次。请找出数">
+<meta property="og:type" content="article">
+<meta property="og:title" content="剑指Offer专题">
+<meta property="og:url" content="https://floweryu.github.io/%E7%AE%97%E6%B3%95%E7%AC%94%E8%AE%B0/%E5%89%91%E6%8C%87offer%E4%B8%93%E9%A2%98/index.html">
+<meta property="og:site_name" content="Floweryu">
+<meta property="og:description" content="剑指 Offer 03. 数组中重复的数字 https:&#x2F;&#x2F;leetcode.cn&#x2F;problems&#x2F;shu-zu-zhong-zhong-fu-de-shu-zi-lcof&#x2F;?favorite&#x3D;xb9nqhhg 找出数组中重复的数字。 在一个长度为 n 的数组 nums 里的所有数字都在 0～n-1 的范围内。数组中某些数字是重复的，但不知道有几个数字重复了，也不知道每个数字重复了几次。请找出数">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202307092110518.png">
+<meta property="article:published_time" content="2023-07-09T19:00:00.000Z">
+<meta property="article:modified_time" content="2023-07-09T19:00:00.000Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="剑指offer">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202307092110518.png">
+  
+  
+  
+  <title>剑指Offer专题 - Floweryu</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"floweryu.github.io","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"xjWdXlr0DYtQEL9pXlSy1Con-gzGzoHsz","app_key":"gZfYmz5aMUHWijIXVVi3xDNk","server_url":"https://xjwdxlr0.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":true}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Floweryu&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="剑指Offer专题"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-07-09 19:00" pubdate>
+          2023-07-09 07:00:00
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          6.1k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          51 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">剑指Offer专题</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="剑指-Offer-03-数组中重复的数字"><a href="#剑指-Offer-03-数组中重复的数字" class="headerlink" title="剑指 Offer 03. 数组中重复的数字"></a>剑指 Offer 03. 数组中重复的数字</h2><blockquote>
+<p><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/shu-zu-zhong-zhong-fu-de-shu-zi-lcof/?favorite=xb9nqhhg">https://leetcode.cn/problems/shu-zu-zhong-zhong-fu-de-shu-zi-lcof/?favorite=xb9nqhhg</a></p>
+<p>找出数组中重复的数字。</p>
+<p>在一个长度为 n 的数组 nums 里的所有数字都在 0～n-1 的范围内。数组中某些数字是重复的，但不知道有几个数字重复了，也不知道每个数字重复了几次。请找出数组中任意一个重复的数字。</p>
+<figure class="highlight accesslog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs accesslog">输入：<br><span class="hljs-string">[2, 3, 1, 0, 2, 5, 3]</span><br>输出：<span class="hljs-number">2</span> 或 <span class="hljs-number">3</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>限制：</strong>2 &lt;&#x3D; n &lt;&#x3D; 100000</p>
+</blockquote>
+<h3 id="题解一：-集合Set"><a href="#题解一：-集合Set" class="headerlink" title="题解一： 集合Set"></a>题解一： 集合Set</h3><p>使用集合记录数组各个数字，遇到重复数字直接返回。</p>
+<blockquote>
+<p>时间复杂度：O(n)，Set查找元素O(1)</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-type">int</span> <span class="hljs-title function_">findRepeatNumber</span><span class="hljs-params">(<span class="hljs-type">int</span>[] nums)</span> &#123;<br>    Set&lt;Integer&gt; set = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashSet</span>&lt;&gt;();<br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> num : nums) &#123;<br>        <span class="hljs-keyword">if</span> (set.contains(num)) &#123;<br>            <span class="hljs-keyword">return</span> num;<br>        &#125;<br>        set.add(num);<br>    &#125;<br>    <span class="hljs-keyword">return</span> -<span class="hljs-number">1</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="题解二：-原地交换数字"><a href="#题解二：-原地交换数字" class="headerlink" title="题解二： 原地交换数字"></a>题解二： 原地交换数字</h3><ol>
+<li><p>遍历数组 nums ，设索引初始值为 i&#x3D;0 :</p>
+<ul>
+<li><p>若 <code>nums[i]=i</code>，说明此数字已在对应索引位置，无需交换，因此跳过；</p>
+</li>
+<li><p>若 <code>nums[nums[i]]=nums[i]</code>， 说明索引<code>nums[i]</code>处和索引<code>i</code>处的元素值都为<code>nums[i]</code>，即找到一组重复值；</p>
+</li>
+<li><p>否则，交换索引<code>i</code>和索引<code>nums[i]</code>的元素值，将此数字交换置对应索引位置。</p>
+</li>
+</ul>
+</li>
+<li><p>若遍历完未返回，返回-1.</p>
+</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-type">int</span> <span class="hljs-title function_">findRepeatNumber</span><span class="hljs-params">(<span class="hljs-type">int</span>[] nums)</span> &#123;<br>    <span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>;<br>    <span class="hljs-keyword">while</span> (i &lt; nums.length) &#123;<br>        <span class="hljs-keyword">if</span> (nums[i] == i) &#123;<br>            i++;<br>            <span class="hljs-keyword">continue</span>;<br>        &#125;<br>        <span class="hljs-keyword">if</span> (nums[i] == nums[nums[i]]) &#123;<br>            <span class="hljs-keyword">return</span> nums[i];<br>        &#125;<br>        <span class="hljs-comment">// 交换位置，直到nums[i] = i</span><br>        <span class="hljs-type">int</span> <span class="hljs-variable">tmp</span> <span class="hljs-operator">=</span> nums[i];<br>        nums[i] = nums[tmp];<br>        nums[tmp] = tmp;<br>    &#125;<br>    <span class="hljs-keyword">return</span> -<span class="hljs-number">1</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="剑指-Offer-04-二维数组中的查找"><a href="#剑指-Offer-04-二维数组中的查找" class="headerlink" title="剑指 Offer 04. 二维数组中的查找"></a>剑指 Offer 04. 二维数组中的查找</h2><blockquote>
+<p><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/er-wei-shu-zu-zhong-de-cha-zhao-lcof/?favorite=xb9nqhhg">https://leetcode.cn/problems/er-wei-shu-zu-zhong-de-cha-zhao-lcof/?favorite=xb9nqhhg</a></p>
+<p>在一个 n * m 的二维数组中，每一行都按照从左到右 <strong>非递减</strong> 的顺序排序，每一列都按照从上到下 <strong>非递减</strong> 的顺序排序。请完成一个高效的函数，输入这样的一个二维数组和一个整数，判断数组中是否含有该整数。</p>
+<figure class="highlight inform7"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs inform7"><span class="hljs-comment">[</span><br><span class="hljs-comment"><span class="hljs-comment">[1,   4,  7, 11, 15]</span>,</span><br><span class="hljs-comment"><span class="hljs-comment">[2,   5,  8, 12, 19]</span>,</span><br><span class="hljs-comment"><span class="hljs-comment">[3,   6,  9, 16, 22]</span>,</span><br><span class="hljs-comment"><span class="hljs-comment">[10, 13, 14, 17, 24]</span>,</span><br><span class="hljs-comment"><span class="hljs-comment">[18, 21, 23, 26, 30]</span></span><br><span class="hljs-comment">]</span><br></code></pre></td></tr></table></figure>
+
+<p>给定 target &#x3D; <code>5</code>，返回 <code>true</code>。</p>
+<p>给定 target &#x3D; <code>20</code>，返回 <code>false</code>。</p>
+</blockquote>
+<h3 id="题解一：二分查找"><a href="#题解一：二分查找" class="headerlink" title="题解一：二分查找"></a>题解一：二分查找</h3><p>由于矩阵的行和列都是有序的，所以可以遍历行或者列使用二分查找来判断。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">findNumberIn2DArray</span><span class="hljs-params">(<span class="hljs-type">int</span>[][] matrix, <span class="hljs-type">int</span> target)</span> &#123;<br>    <span class="hljs-keyword">if</span> (matrix.length == <span class="hljs-number">0</span> || matrix[<span class="hljs-number">0</span>].length == <span class="hljs-number">0</span>) &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>    &#125;<br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span>[] ints : matrix) &#123;<br>        <span class="hljs-comment">// 二分查找</span><br>        <span class="hljs-type">int</span> <span class="hljs-variable">l</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>, r = ints.length - <span class="hljs-number">1</span>;<br>        <span class="hljs-keyword">while</span> (l &lt;= r) &#123;<br>            <span class="hljs-type">int</span> <span class="hljs-variable">index</span> <span class="hljs-operator">=</span> (l + r) / <span class="hljs-number">2</span>;<br>            <span class="hljs-keyword">if</span> (ints[index] == target) &#123;<br>                <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>            &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (ints[index] &lt; target) &#123;<br>                l++;<br>            &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (ints[index] &gt; target) &#123;<br>                r--;<br>            &#125;<br>        &#125;<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="题解二：-二叉搜索树思想（消去行列）"><a href="#题解二：-二叉搜索树思想（消去行列）" class="headerlink" title="题解二： 二叉搜索树思想（消去行列）"></a>题解二： 二叉搜索树思想（消去行列）</h3><p>如下图所示：将矩阵逆时针旋转，可以发现其类似于<strong>二叉搜索树</strong>。即每个元素，左分支元素更小，右分支元素更大。</p>
+<img src="https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202307092110518.png" srcset="/img/loading.gif" lazyload alt="image-20230316132855942" style="zoom:50%;" />
+
+<p>因此，以左下角元素或者右上角元素为基础<code>flag</code>，则有：</p>
+<ul>
+<li>若<code>target &lt; flag</code>：则<code>target</code>一定在<code>flag</code>所在行的上面，这样<code>flag</code>所在<strong>行</strong>就可以消除。</li>
+<li>若<code>target &gt; flag</code>：则<code>target</code>一定在<code>flag</code>所在列的右方，这样<code>flag</code>所在<strong>列</strong>就可以消除。</li>
+</ul>
+<p>复杂度分析：</p>
+<ul>
+<li>时间复杂度：<code>O(M + N)</code>，M和N为矩阵行数和列数</li>
+<li>空间复杂度：<code>O(1)</code></li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">findNumberIn2DArray</span><span class="hljs-params">(<span class="hljs-type">int</span>[][] matrix, <span class="hljs-type">int</span> target)</span> &#123;<br>    <span class="hljs-comment">// 从左下角元素开始</span><br>    <span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> matrix.length - <span class="hljs-number">1</span>, j = <span class="hljs-number">0</span>;<br>    <span class="hljs-keyword">while</span> (i &gt;= <span class="hljs-number">0</span> &amp;&amp; j &lt;= matrix[<span class="hljs-number">0</span>].length - <span class="hljs-number">1</span>) &#123;<br>        <span class="hljs-keyword">if</span> (matrix[i][j] == target) &#123;<br>            <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>        &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (matrix[i][j] &gt; target) &#123;<br>            <span class="hljs-comment">// target一定在matrix[i][j]上方，消除行</span><br>            i--;<br>        &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (matrix[i][j] &lt; target) &#123;<br>            <span class="hljs-comment">// target一定在matrix[i][j]右方，消除列</span><br>            j++;<br>        &#125;<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="剑指-Offer-05-替换空格"><a href="#剑指-Offer-05-替换空格" class="headerlink" title="剑指 Offer 05. 替换空格"></a>剑指 Offer 05. 替换空格</h2><blockquote>
+<p>链接：<a target="_blank" rel="noopener" href="https://leetcode.cn/problems/ti-huan-kong-ge-lcof/?favorite=xb9nqhhg">https://leetcode.cn/problems/ti-huan-kong-ge-lcof/?favorite=xb9nqhhg</a></p>
+<p>请实现一个函数，把字符串 <code>s</code> 中的每个空格替换成”%20”。</p>
+<p>【示例】：</p>
+<figure class="highlight perl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs perl">输入：s = <span class="hljs-string">&quot;We are happy.&quot;</span><br>输出：<span class="hljs-string">&quot;We%20are%20happy.&quot;</span><br></code></pre></td></tr></table></figure>
+</blockquote>
+<h3 id="题解一：直接调用replace方法"><a href="#题解一：直接调用replace方法" class="headerlink" title="题解一：直接调用replace方法"></a>题解一：直接调用replace方法</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> String <span class="hljs-title function_">replaceSpace</span><span class="hljs-params">(String s)</span> &#123;<br>    <span class="hljs-keyword">return</span> s.replace(<span class="hljs-string">&quot; &quot;</span>, <span class="hljs-string">&quot;%20&quot;</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="题解二：遍历替换"><a href="#题解二：遍历替换" class="headerlink" title="题解二：遍历替换"></a>题解二：遍历替换</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> String <span class="hljs-title function_">replaceSpace</span><span class="hljs-params">(String s)</span> &#123;<br>    <span class="hljs-type">StringBuilder</span> <span class="hljs-variable">sb</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">StringBuilder</span>();<br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">char</span> ch : s.toCharArray()) &#123;<br>        <span class="hljs-keyword">if</span> (ch == <span class="hljs-string">&#x27; &#x27;</span>) &#123;<br>            sb.append(<span class="hljs-string">&quot;%20&quot;</span>);<br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            sb.append(ch);<br>        &#125;<br>    &#125;<br>    <span class="hljs-keyword">return</span> sb.toString();<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="剑指-Offer-06-从尾到头打印链表"><a href="#剑指-Offer-06-从尾到头打印链表" class="headerlink" title="剑指 Offer 06. 从尾到头打印链表"></a>剑指 Offer 06. 从尾到头打印链表</h2><blockquote>
+<p><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/cong-wei-dao-tou-da-yin-lian-biao-lcof/?favorite=xb9nqhhg">https://leetcode.cn/problems/cong-wei-dao-tou-da-yin-lian-biao-lcof/?favorite=xb9nqhhg</a></p>
+<p>输入一个链表的头节点，从尾到头反过来返回每个节点的值（用数组返回）。</p>
+<figure class="highlight inform7"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs inform7">输入：head = <span class="hljs-comment">[1,3,2]</span><br>输出：<span class="hljs-comment">[2,3,1]</span><br></code></pre></td></tr></table></figure>
+</blockquote>
+<h3 id="题解：普通遍历"><a href="#题解：普通遍历" class="headerlink" title="题解：普通遍历"></a>题解：普通遍历</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-type">int</span>[] reversePrint(ListNode head) &#123;<br>    List&lt;Integer&gt; res = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;();<br>    <span class="hljs-keyword">while</span> (head != <span class="hljs-literal">null</span>) &#123;<br>        res.add(head.val);<br>        head = head.next;<br>    &#125;<br>    Collections.reverse(res);<br>    <span class="hljs-keyword">return</span> res.stream().mapToInt(Integer::intValue).toArray();<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="剑指-Offer-51-数组中的逆序对"><a href="#剑指-Offer-51-数组中的逆序对" class="headerlink" title="剑指 Offer 51. 数组中的逆序对"></a>剑指 Offer 51. 数组中的逆序对</h2><blockquote>
+<p><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/shu-zu-zhong-de-ni-xu-dui-lcof/description/">https://leetcode.cn/problems/shu-zu-zhong-de-ni-xu-dui-lcof/description/</a></p>
+<p>在数组中的两个数字，如果前面一个数字大于后面的数字，则这两个数字组成一个逆序对。输入一个数组，求出这个数组中的逆序对的总数。</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs makefile"><span class="hljs-section">输入: [7,5,6,4]</span><br><span class="hljs-section">输出: 5</span><br></code></pre></td></tr></table></figure>
+</blockquote>
+<h3 id="题解一：归并排序"><a href="#题解一：归并排序" class="headerlink" title="题解一：归并排序"></a>题解一：归并排序</h3><p><strong>思路</strong>：求逆序对跟归并排序有啥关系？？？</p>
+<p><strong>归并排序和逆序对关系</strong>，比如下面例子：</p>
+<p>假设有两个已排序的序列等待合并，<code>L=&#123;8,12,16,22,100&#125;  R=&#123;9,26,55,64,91&#125;</code>。开始我们用指针 <code>lPtr = 0</code> 指向 L 的首部，<code>rPtr = 0</code> 指向 R 的头部。记已经合并好的部分为M。如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs java">L = [<span class="hljs-number">8</span>, <span class="hljs-number">12</span>, <span class="hljs-number">16</span>, <span class="hljs-number">22</span>, <span class="hljs-number">100</span>]   R = [<span class="hljs-number">9</span>, <span class="hljs-number">26</span>, <span class="hljs-number">55</span>, <span class="hljs-number">64</span>, <span class="hljs-number">91</span>]  M = []<br>     |                          |<br>   lPtr                       rPtr<br></code></pre></td></tr></table></figure>
+
+<p>发现<code>lPtr</code>指向的元素小于<code>rPtr</code>指向的元素，于是把<code>lPtr</code>指向的元素放入M，并把<code>lPtr</code>向后移一位。如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs java">L = [<span class="hljs-number">8</span>, <span class="hljs-number">12</span>, <span class="hljs-number">16</span>, <span class="hljs-number">22</span>, <span class="hljs-number">100</span>]   R = [<span class="hljs-number">9</span>, <span class="hljs-number">26</span>, <span class="hljs-number">55</span>, <span class="hljs-number">64</span>, <span class="hljs-number">91</span>]  M = [<span class="hljs-number">8</span>]<br>        |                       |<br>      lPtr                     rPtr<br></code></pre></td></tr></table></figure>
+
+<p>这时把8放入答案，但是发现右边没有数比8小，所以8对逆序对总数【贡献】为0。</p>
+<p>继续合并，<strong>此时发现<code>lPtr</code>所指的位置比<code>rPtr</code>大，由于归并排序每个子数组都是有序的，则对于<code>rPtr</code>而言，<code>lPtr</code>右侧的所有数都比它大，即<code>lPtr</code>右侧每个数都能和<code>rPtr</code>构成一个逆序对。贡献为<code>mid - lPtr + 1</code>。</strong></p>
+<hr>
+<p>利用上述思路，可以在归并的过程中计算逆序对的个数。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Solution</span> &#123;<br>    <span class="hljs-type">int</span> <span class="hljs-variable">res</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>;<br>    <span class="hljs-keyword">public</span> <span class="hljs-type">int</span> <span class="hljs-title function_">reversePairs</span><span class="hljs-params">(<span class="hljs-type">int</span>[] nums)</span> &#123;<br>        <span class="hljs-built_in">this</span>.res = <span class="hljs-number">0</span>;<br>        mergeSort(nums, <span class="hljs-number">0</span>, nums.length - <span class="hljs-number">1</span>);<br>        <span class="hljs-keyword">return</span> res;<br>    &#125;<br>    <br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">mergeSort</span><span class="hljs-params">(<span class="hljs-type">int</span>[] nums, <span class="hljs-type">int</span> left, <span class="hljs-type">int</span> right)</span> &#123;<br>        <span class="hljs-keyword">if</span> (left &lt; right) &#123;<br>            <span class="hljs-type">int</span> <span class="hljs-variable">mid</span> <span class="hljs-operator">=</span> left + (right - left) / <span class="hljs-number">2</span>;<br>            mergeSort(nums, left, mid);<br>            mergeSort(nums, mid + <span class="hljs-number">1</span>, right);<br>            merge(nums, left, mid, right);<br>        &#125;<br>    &#125;<br>    <br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">merge</span><span class="hljs-params">(<span class="hljs-type">int</span>[] nums, <span class="hljs-type">int</span> left, <span class="hljs-type">int</span> mid, <span class="hljs-type">int</span> right)</span> &#123;<br>        <span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> left, j = mid + <span class="hljs-number">1</span>, k = <span class="hljs-number">0</span>;<br>        <span class="hljs-type">int</span>[] tmp = <span class="hljs-keyword">new</span> <span class="hljs-title class_">int</span>[right - left + <span class="hljs-number">1</span>];<br>        <span class="hljs-keyword">while</span> (i &lt;= mid &amp;&amp; j &lt;= right) &#123;<br>            <span class="hljs-keyword">if</span> (nums[i] &gt; nums[j]) &#123;<br>                tmp[k++] = nums[j++];<br>                <span class="hljs-comment">// 右边当前值比左边当前值都要小，则右边当前值对于左边剩余部分的mid-i+1个数都是逆序</span><br>                res += (mid - i + <span class="hljs-number">1</span>);<br>            &#125; <span class="hljs-keyword">else</span> &#123;<br>                <span class="hljs-comment">// 左边当前值小于右边当前值, 不是逆序</span><br>                tmp[k++] = nums[i++];<br>            &#125;<br>        &#125;<br>        <br>        <span class="hljs-keyword">while</span> (i &lt;= mid) &#123;<br>            tmp[k++] = nums[i++];<br>        &#125;<br>        <br>        <span class="hljs-keyword">while</span> (j &lt;= right) &#123;<br>            tmp[k++] = nums[j++];<br>        &#125;<br>    <br>        <span class="hljs-keyword">for</span>(<span class="hljs-type">int</span> <span class="hljs-variable">t</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>; t &lt; tmp.length; t++)&#123;<br>            nums[left + t] = tmp[t];<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="剑指-Offer-11-旋转数组的最小数字"><a href="#剑指-Offer-11-旋转数组的最小数字" class="headerlink" title="剑指 Offer 11. 旋转数组的最小数字"></a>剑指 Offer 11. 旋转数组的最小数字</h2><blockquote>
+<p>把一个数组最开始的若干个元素搬到数组的末尾，我们称之为数组的旋转。</p>
+<p>给你一个可能存在 <strong>重复</strong> 元素值的数组 <code>numbers</code> ，它原来是一个升序排列的数组，并按上述情形进行了一次旋转。请返回旋转数组的<strong>最小元素</strong>。例如，数组 <code>[3,4,5,1,2]</code> 为 <code>[1,2,3,4,5]</code> 的一次旋转，该数组的最小值为 1。 </p>
+<p>注意，数组 <code>[a[0], a[1], a[2], ..., a[n-1]]</code> 旋转一次 的结果为数组 <code>[a[n-1], a[0], a[1], a[2], ..., a[n-2]]</code> 。</p>
+<figure class="highlight accesslog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs accesslog">输入：numbers = <span class="hljs-string">[3,4,5,1,2]</span><br>输出：<span class="hljs-number">1</span><br></code></pre></td></tr></table></figure>
+
+<figure class="highlight accesslog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs accesslog">输入：numbers = <span class="hljs-string">[2,2,2,0,1]</span><br>输出：<span class="hljs-number">0</span><br></code></pre></td></tr></table></figure>
+</blockquote>
+<h3 id="题解：二分查找"><a href="#题解：二分查找" class="headerlink" title="题解：二分查找"></a>题解：二分查找</h3><p><strong>思路</strong>:</p>
+<p>以数组最右侧的元素x为参考比较：<strong>在最小值右侧的元素，一定小于等于x；在最小值左侧的元素，一定大于等于x。</strong></p>
+<p>以<code>mid</code>为中点，左边界为<code>low</code>，右边界为<code>high</code>。然后将中值元素和<code>nums[high]</code>比较：</p>
+<ul>
+<li>如果<code>nums[mid] &lt; nums[high]</code>：则<code>nums[mid]</code>是最小值右侧元素，二分查找可以忽略右边部分，即<code>right = mid</code>；</li>
+<li>如果<code>nums[mid] &gt; nums[high]</code>：则<code>nums[mid]</code>是最小值左侧元素，二分查找可以忽略左侧部分，即<code>left = mid + 1</code>；</li>
+<li>如果<code>nums[mid] == nums[high]</code>：则不能判断<code>nums[mid]</code>在最小值左侧还是右侧，但不管<code>nums[high]</code>是不是最小值，都有一个值替代它，所以忽略该值即可。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-type">int</span> <span class="hljs-title function_">minArray</span><span class="hljs-params">(<span class="hljs-type">int</span>[] numbers)</span> &#123;<br>    <span class="hljs-type">int</span> <span class="hljs-variable">left</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>;<br>    <span class="hljs-type">int</span> <span class="hljs-variable">right</span> <span class="hljs-operator">=</span> numbers.length - <span class="hljs-number">1</span>;<br>    <span class="hljs-keyword">while</span> (left &lt; right) &#123;<br>        <span class="hljs-type">int</span> <span class="hljs-variable">mid</span> <span class="hljs-operator">=</span> left + (right - left) / <span class="hljs-number">2</span>;<br>        <span class="hljs-comment">// 为什么以right处元素为参考？</span><br>        <span class="hljs-comment">// right处元素一定小于或等于0位置元素, 比right处还小的元素一定在最小值和right处元素之间，比right处大的元素一定在0到最小值之间</span><br>        <span class="hljs-keyword">if</span> (numbers[mid] &lt; numbers[right]) &#123;<br>            <span class="hljs-comment">// 说明nums[mid]在最小值右侧, 则right-mid这部分可以丢弃</span><br>            right = mid;<br>        &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (numbers[mid] &gt; numbers[right])&#123;<br>            <span class="hljs-comment">// 说明nums[mid]在最小值左侧, 则left~mid这部分可以丢弃</span><br>            left = mid + <span class="hljs-number">1</span>;<br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            <span class="hljs-comment">// 如果相等，则不能确定在最小值左侧还是右侧，但是可以忽略这个相等值</span><br>            right -= <span class="hljs-number">1</span>;<br>        &#125;<br>    &#125;<br>    <span class="hljs-keyword">return</span> numbers[right];<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%AE%97%E6%B3%95/" class="category-chain-item">算法</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%89%91%E6%8C%87offer/">#剑指offer</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>剑指Offer专题</div>
+      <div>https://floweryu.github.io/算法笔记/剑指offer专题/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>John Doe</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年7月9日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/%E7%AE%97%E6%B3%95%E7%AC%94%E8%AE%B0/%E4%BA%8C%E5%8F%89%E6%A0%91%E4%B8%93%E9%A2%98/" title="二叉树专题">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">二叉树专题</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/%E7%AE%97%E6%B3%95%E7%AC%94%E8%AE%B0/%E5%8F%8C%E6%8C%87%E9%92%88%E4%B8%93%E9%A2%98/" title="双指针专题">
+                        <span class="hidden-mobile">双指针专题</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
