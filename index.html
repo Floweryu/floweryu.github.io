@@ -224,15 +224,137 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/Sentinel/Sentinel%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5/" target="_self">
-          Sentinel基础概念
+        <a href="/Sentinel/Sentinel%E9%99%90%E6%B5%81%E5%8E%9F%E7%90%86/" target="_self">
+          Sentinel限流原理
         </a>
       </h1>
 
       
-      <a class="index-excerpt index-excerpt__noimg" href="/Sentinel/Sentinel%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5/" target="_self">
+      <a class="index-excerpt index-excerpt__noimg" href="/Sentinel/Sentinel%E9%99%90%E6%B5%81%E5%8E%9F%E7%90%86/" target="_self">
         <div>
-          流量控制 任意时间到来的请求往往是随机不可控的，而系统的处理能力是有限的。需要根据系统的处理能力对流量进行控制   流量控制有下面几个角度：  资源的调用关系。比如：资源调用链路、资源和资源的关系。 运行的指标。比如：QPS、线程池、系统负载。 控制的效果。比如：直接限流、冷启动、排队。  熔断降级在资源调用过程中，如果某个资源出现了不稳定，最终会导致堆积发生。  Sentinel 和 Hystr
+          SphU.entry 入口从SphU.entry()方法向下执行，会进入到下面这个方法中： 123456789101112131415161718192021222324252627282930313233343536373839404142434445private Entry entryWithPriority(ResourceWrapper resourceWrapper, int coun
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-07-09 19:00" pubdate>
+              2023-07-09
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Sentinel/" class="category-chain-item">Sentinel</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%90%8E%E7%AB%AF/">#后端</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/%E5%88%86%E5%B8%83%E5%BC%8F/%E7%BC%93%E5%AD%98%E4%B8%80%E8%87%B4%E6%80%A7%E6%96%B9%E6%A1%88%E6%80%9D%E8%80%83/" target="_self">
+          缓存一致性方案思考
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/%E5%88%86%E5%B8%83%E5%BC%8F/%E7%BC%93%E5%AD%98%E4%B8%80%E8%87%B4%E6%80%A7%E6%96%B9%E6%A1%88%E6%80%9D%E8%80%83/" target="_self">
+        <div>
+          一、缓存的查询先查询缓存，如果缓存查询失败，就去查询数据库，然后重新生成缓存。 二、缓存的更新在高并发的情况下，需要考虑下面两个问题：  是先更新数据库还是先更新缓存？ 是更新缓存还是删除缓存？  1. 先更新数据库再更新缓存线程A：更新数据库（第1s）——&gt;  更新缓存（第10s） 线程B：更新数据库 （第3s）——&gt; 更新缓存（第5s） 上面情况，就会导致线程B的缓存值被线程A覆盖
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-07-09 11:08" pubdate>
+              2023-07-09
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%88%86%E5%B8%83%E5%BC%8F/" class="category-chain-item">分布式</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E9%9A%8F%E7%AC%94/">#随笔</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/Sentinel/Sentinel%E6%B5%81%E9%87%8F%E6%8E%A7%E5%88%B6/" target="_self">
+          Sentinel流量控制
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/Sentinel/Sentinel%E6%B5%81%E9%87%8F%E6%8E%A7%E5%88%B6/" target="_self">
+        <div>
+          概述FlowSlot 会根据预设的规则，结合前面 NodeSelectorSlot、ClusterNodeBuilderSlot、StatistcSlot 统计出来的实时信息进行流量控制。 限流的直接表现是在执行 Entry nodeA = SphU.entry(资源名字) 的时候抛出 FlowException 异常。FlowException 是 BlockException 的子类，您可以捕
         </div>
       </a>
 
@@ -285,15 +407,15 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/Sentinel/Sentinel%E6%B5%81%E9%87%8F%E6%8E%A7%E5%88%B6/" target="_self">
-          Sentinel流量控制
+        <a href="/Sentinel/Sentinel%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5/" target="_self">
+          Sentinel基础概念
         </a>
       </h1>
 
       
-      <a class="index-excerpt index-excerpt__noimg" href="/Sentinel/Sentinel%E6%B5%81%E9%87%8F%E6%8E%A7%E5%88%B6/" target="_self">
+      <a class="index-excerpt index-excerpt__noimg" href="/Sentinel/Sentinel%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5/" target="_self">
         <div>
-          概述FlowSlot 会根据预设的规则，结合前面 NodeSelectorSlot、ClusterNodeBuilderSlot、StatistcSlot 统计出来的实时信息进行流量控制。 限流的直接表现是在执行 Entry nodeA = SphU.entry(资源名字) 的时候抛出 FlowException 异常。FlowException 是 BlockException 的子类，您可以捕
+          流量控制 任意时间到来的请求往往是随机不可控的，而系统的处理能力是有限的。需要根据系统的处理能力对流量进行控制   流量控制有下面几个角度：  资源的调用关系。比如：资源调用链路、资源和资源的关系。 运行的指标。比如：QPS、线程池、系统负载。 控制的效果。比如：直接限流、冷启动、排队。  熔断降级在资源调用过程中，如果某个资源出现了不稳定，最终会导致堆积发生。  Sentinel 和 Hystr
         </div>
       </a>
 
@@ -394,67 +516,6 @@
             <i class="iconfont icon-tags"></i>
             
               <a href="/tags/%E5%90%8E%E7%AB%AF/">#后端</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/%E5%88%86%E5%B8%83%E5%BC%8F/%E7%BC%93%E5%AD%98%E4%B8%80%E8%87%B4%E6%80%A7%E6%96%B9%E6%A1%88%E6%80%9D%E8%80%83/" target="_self">
-          缓存一致性方案思考
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/%E5%88%86%E5%B8%83%E5%BC%8F/%E7%BC%93%E5%AD%98%E4%B8%80%E8%87%B4%E6%80%A7%E6%96%B9%E6%A1%88%E6%80%9D%E8%80%83/" target="_self">
-        <div>
-          一、缓存的查询先查询缓存，如果缓存查询失败，就去查询数据库，然后重新生成缓存。 二、缓存的更新在高并发的情况下，需要考虑下面两个问题：  是先更新数据库还是先更新缓存？ 是更新缓存还是删除缓存？  1. 先更新数据库再更新缓存线程A：更新数据库（第1s）——&gt;  更新缓存（第10s） 线程B：更新数据库 （第3s）——&gt; 更新缓存（第5s） 上面情况，就会导致线程B的缓存值被线程A覆盖
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-07-04 05:10" pubdate>
-              2023-07-04
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/%E5%88%86%E5%B8%83%E5%BC%8F/" class="category-chain-item">分布式</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E9%9A%8F%E7%AC%94/">#随笔</a>
             
           </div>
         
