@@ -16,23 +16,22 @@
   <meta name="author" content="John Doe">
   <meta name="keywords" content="">
   
-    <meta name="description" content="在进行分页查询的时候，通常会使用LIMIT加偏移量的办法实现，但当偏移量非常大的时候，例如：LIMIT 10000， 20这样的查询，这是MySQL需要查询10020条记录然后只返回20条，前面的10000条都将会抛弃。这样的代价就非常高。  优化上述查询，有两种方案供选择：  在页面中限制分页的数量 优化大偏移量的性能  使用索引覆盖扫描，不查询所有的列，然后根据需要进行一次关联，再返回所需的">
+    <meta name="description" content="剑指 Offer II 075. 数组相对排序 https:&#x2F;&#x2F;leetcode.cn&#x2F;problems&#x2F;0H97ZC&#x2F;?envType&#x3D;study-plan-v2&amp;envId&#x3D;coding-interviews-special 给定两个数组，arr1 和 arr2，  arr2 中的元素各不相同 arr2 中的每个元素都出现在 arr1 中  对 arr1 中的元素进行排序，使 arr1">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Mysql的limit原理及分页查询优化">
-<meta property="og:url" content="https://floweryu.github.io/MySQL/LIMIT%E5%88%86%E9%A1%B5%E4%BC%98%E5%8C%96%E6%9F%A5%E8%AF%A2/index.html">
+<meta property="og:title" content="排序专题">
+<meta property="og:url" content="https://floweryu.github.io/%E7%AE%97%E6%B3%95%E7%AC%94%E8%AE%B0/%E6%8E%92%E5%BA%8F%E4%B8%93%E9%A2%98/index.html">
 <meta property="og:site_name" content="Floweryu">
-<meta property="og:description" content="在进行分页查询的时候，通常会使用LIMIT加偏移量的办法实现，但当偏移量非常大的时候，例如：LIMIT 10000， 20这样的查询，这是MySQL需要查询10020条记录然后只返回20条，前面的10000条都将会抛弃。这样的代价就非常高。  优化上述查询，有两种方案供选择：  在页面中限制分页的数量 优化大偏移量的性能  使用索引覆盖扫描，不查询所有的列，然后根据需要进行一次关联，再返回所需的">
+<meta property="og:description" content="剑指 Offer II 075. 数组相对排序 https:&#x2F;&#x2F;leetcode.cn&#x2F;problems&#x2F;0H97ZC&#x2F;?envType&#x3D;study-plan-v2&amp;envId&#x3D;coding-interviews-special 给定两个数组，arr1 和 arr2，  arr2 中的元素各不相同 arr2 中的每个元素都出现在 arr1 中  对 arr1 中的元素进行排序，使 arr1">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2023-07-12T20:15:00.000Z">
-<meta property="article:modified_time" content="2023-07-12T20:15:00.000Z">
+<meta property="article:published_time" content="2023-07-16T20:00:00.000Z">
+<meta property="article:modified_time" content="2023-07-16T20:00:00.000Z">
 <meta property="article:author" content="John Doe">
-<meta property="article:tag" content="后端">
-<meta property="article:tag" content="原理">
+<meta property="article:tag" content="排序">
 <meta name="twitter:card" content="summary_large_image">
   
   
   
-  <title>Mysql的limit原理及分页查询优化 - Floweryu</title>
+  <title>排序专题 - Floweryu</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -198,7 +197,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="Mysql的limit原理及分页查询优化"></span>
+            <span id="subtitle" data-typed-text="排序专题"></span>
           
         </div>
 
@@ -209,8 +208,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2023-07-12 20:15" pubdate>
-          2023-07-12 08:15:00
+        <time datetime="2023-07-16 20:00" pubdate>
+          2023-07-16 08:00:00
         </time>
       </span>
     
@@ -222,7 +221,7 @@
         <i class="iconfont icon-chart"></i>
         
           <!-- compatible with older versions-->
-          891 字
+          931 字
         
       </span>
     
@@ -280,42 +279,22 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">Mysql的limit原理及分页查询优化</h1>
+            <h1 style="display: none">排序专题</h1>
             
             
               <div class="markdown-body">
                 
-                <blockquote>
-<p>在进行分页查询的时候，通常会使用LIMIT加偏移量的办法实现，但当偏移量非常大的时候，例如：LIMIT 10000， 20这样的查询，这是MySQL需要查询10020条记录然后只返回20条，前面的10000条都将会抛弃。这样的代价就非常高。</p>
-</blockquote>
-<p>优化上述查询，有两种方案供选择：</p>
+                <h2 id="剑指-Offer-II-075-数组相对排序"><a href="#剑指-Offer-II-075-数组相对排序" class="headerlink" title="剑指 Offer II 075. 数组相对排序"></a>剑指 Offer II 075. 数组相对排序</h2><blockquote>
+<p><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/0H97ZC/?envType=study-plan-v2&envId=coding-interviews-special">https://leetcode.cn/problems/0H97ZC/?envType=study-plan-v2&amp;envId=coding-interviews-special</a></p>
+<p>给定两个数组，<code>arr1</code> 和 <code>arr2</code>，</p>
 <ul>
-<li>在页面中限制分页的数量</li>
-<li>优化大偏移量的性能</li>
+<li><code>arr2</code> 中的元素各不相同</li>
+<li><code>arr2</code> 中的每个元素都出现在 <code>arr1</code> 中</li>
 </ul>
-<p><strong>使用索引覆盖扫描，不查询所有的列，然后根据需要进行一次关联，再返回所需的列</strong></p>
-<p>例如下面查询：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mysql">SELECT film_id, description FROM sakila.film ORDER BY title LIMIT 50, 5;<br></code></pre></td></tr></table></figure>
-
-<p>当偏移量很大的时候，可以改成下面查询：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs mysql">SELECT film.film_id, film.description FROM sakila.film INNER JOIN (<br>	SELECT film_id FROM sakila.film ORDER BY title LIMIT 50, 5<br>) AS lim USING(film_id);<br></code></pre></td></tr></table></figure>
-
-<p>这里先获取需要访问的记录，然后再根据关联列回原表查询所需要的列。</p>
-<hr>
-<p><strong>将LIMIT查询转换为已知位置的查询，让MySQL通过范围扫描获得到对应的结果</strong></p>
-<p>可以根据索引列，预先计算边界值，上面查询可以修改为：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs mysql">SELECT film_id, description FROM sakila.film<br>WHERE position BETWEEN 50 AND 54 ORDER BY position;<br></code></pre></td></tr></table></figure>
-
-<hr>
-<blockquote>
-<p>LIMIT和OFFSET的问题，实际上是OFFSET的问题，它会导致MySQL扫描大量不需要的行然后再抛弃掉。</p>
+<p>对 <code>arr1</code> 中的元素进行排序，使 <code>arr1</code> 中项的相对顺序和 <code>arr2</code> 中的相对顺序相同。未在 <code>arr2</code> 中出现过的元素需要按照升序放在 <code>arr1</code> 的末尾。</p>
+<figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs dns">输入：arr1 = [<span class="hljs-number">2,3,1,3</span>,<span class="hljs-number">2,4,6,7</span>,<span class="hljs-number">9</span>,<span class="hljs-number">2</span>,<span class="hljs-number">19</span>], arr2 = [<span class="hljs-number">2,1,4,3</span>,<span class="hljs-number">9</span>,<span class="hljs-number">6</span>]<br>输出：[<span class="hljs-number">2,2,2,1</span>,<span class="hljs-number">4,3,3,9</span>,<span class="hljs-number">6</span>,<span class="hljs-number">7</span>,<span class="hljs-number">19</span>]<br></code></pre></td></tr></table></figure>
 </blockquote>
-<p><strong>可以使用标记记录上次读取数据的位置，下次就可以直接从该标记的位置开始扫描，这样可以避免OFFSET</strong></p>
-<p>假设使用下面查询获取第一条结果：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs mysql">SELECT * FROM sakila.rental<br>ORDER BY rental_id DESC LIMIT 20;<br></code></pre></td></tr></table></figure>
-
-<p>假设上面查询的是主键16049到16030的租界记录，下一页查询就可以从16030这个点开始</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs mysql">SELECT * FROM sakila.rental<br>WHERE rental_id &lt; 16030<br>ORDER BY rental_id DESC LIMIT 2<br></code></pre></td></tr></table></figure>
+<h4 id="题解：计数排序"><a href="#题解：计数排序" class="headerlink" title="题解：计数排序"></a>题解：计数排序</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-type">int</span>[] relativeSortArray(<span class="hljs-type">int</span>[] arr1, <span class="hljs-type">int</span>[] arr2) &#123;<br>    <span class="hljs-comment">// 为节省空间，可以先算出数组中最大值</span><br>    <span class="hljs-type">int</span> <span class="hljs-variable">max</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>;<br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> v : arr1) &#123;<br>        max = Math.max(v, max);<br>    &#125;<br>    <span class="hljs-comment">// 初始化max+1空间数组</span><br>    <span class="hljs-type">int</span>[] count = <span class="hljs-keyword">new</span> <span class="hljs-title class_">int</span>[max + <span class="hljs-number">1</span>];<br>    <span class="hljs-comment">// 统计arr1中每个数字出现次数</span><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> v : arr1) &#123;<br>        count[v]++;<br>    &#125;<br>    <span class="hljs-type">int</span> <span class="hljs-variable">index</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>;<br>    <span class="hljs-type">int</span>[] res = <span class="hljs-keyword">new</span> <span class="hljs-title class_">int</span>[arr1.length];<br>    <span class="hljs-comment">// 此时以arr2数组中的顺序为主（计数排序是以统计次数的数组下标来遍历，因为下标是有序的）</span><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> v : arr2) &#123;<br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>; i &lt; count[v]; i++) &#123;<br>            res[index++] = v;<br>        &#125;<br>        <span class="hljs-comment">// 每个数填完后次数归0</span><br>        count[v] = <span class="hljs-number">0</span>;<br>    &#125;<br><br>    <span class="hljs-comment">// 最后遍历计数数组，按照下标遍历，因为这样arr1中剩下数组就会按照有序排列</span><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>; i &lt;= max; i++) &#123;<br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">j</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>; j &lt; count[i]; j++) &#123;<br>            res[index++] = i;<br>        &#125;<br>    &#125;<br>    <span class="hljs-keyword">return</span> res;<br>&#125;<br></code></pre></td></tr></table></figure>
 
 
                 
@@ -335,7 +314,7 @@
     
       <span class="category-chain">
         
-  <a href="/categories/MySQL/" class="category-chain-item">MySQL</a>
+  <a href="/categories/%E7%AE%97%E6%B3%95/" class="category-chain-item">算法</a>
   
   
 
@@ -350,9 +329,7 @@
     <div class="post-meta">
       <i class="iconfont icon-tags"></i>
       
-        <a href="/tags/%E5%90%8E%E7%AB%AF/">#后端</a>
-      
-        <a href="/tags/%E5%8E%9F%E7%90%86/">#原理</a>
+        <a href="/tags/%E6%8E%92%E5%BA%8F/">#排序</a>
       
     </div>
   
@@ -364,8 +341,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>Mysql的limit原理及分页查询优化</div>
-      <div>https://floweryu.github.io/MySQL/LIMIT分页优化查询/</div>
+      <div>排序专题</div>
+      <div>https://floweryu.github.io/算法笔记/排序专题/</div>
     </div>
     <div class="license-meta">
       
@@ -377,7 +354,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2023年7月12日</div>
+          <div>2023年7月16日</div>
         </div>
       
       
@@ -409,9 +386,9 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/%E7%AE%97%E6%B3%95%E7%AC%94%E8%AE%B0/%E6%8E%92%E5%BA%8F%E4%B8%93%E9%A2%98/" title="排序专题">
+                      <a href="/%E7%AE%97%E6%B3%95%E7%AC%94%E8%AE%B0/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92%E4%B8%93%E9%A2%98/" title="动态规划专题">
                         <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">排序专题</span>
+                        <span class="hidden-mobile">动态规划专题</span>
                         <span class="visible-mobile">上一篇</span>
                       </a>
                     
@@ -419,8 +396,8 @@
                   <article class="post-next col-6">
                     
                     
-                      <a href="/Sentinel/Sentinel%E9%99%90%E6%B5%81%E5%8E%9F%E7%90%86/" title="Sentinel限流原理">
-                        <span class="hidden-mobile">Sentinel限流原理</span>
+                      <a href="/MySQL/LIMIT%E5%88%86%E9%A1%B5%E4%BC%98%E5%8C%96%E6%9F%A5%E8%AF%A2/" title="Mysql的limit原理及分页查询优化">
+                        <span class="hidden-mobile">Mysql的limit原理及分页查询优化</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
