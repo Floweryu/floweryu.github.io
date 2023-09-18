@@ -96,7 +96,7 @@ idx origin  threadNum passedQps blockedQps totalQps aRt   1m-passed 1m-blocked 1
 - `{some_origin_name}`：表示针对特定的调用者，只有来自这个调用者的请求才会进行流量控制。例如 `NodeA` 配置了一条针对调用者`caller1`的规则，那么当且仅当来自 `caller1` 对 `NodeA` 的请求才会触发流量控制。
 - `other`：表示针对除 `{some_origin_name}` 以外的其余调用方的流量进行流量控制。例如，资源`NodeA`配置了一条针对调用者 `caller1` 的限流规则，同时又配置了一条调用者为 `other` 的规则，那么任意来自非 `caller1` 对 `NodeA` 的调用，都不能超过 `other` 这条规则定义的阈值。
 
-同一个资源名可以配置多条规则，规则的生效顺序为：**{some_origin_name} > other > default**
+同一个资源名可以配置多条规则，规则的生效顺序为：**{some_origin_name}>other>default**
 
 > 注意：调用来源的数目不要太多（一般不要超过几百个），否则内存占用会非常多（调用来源的统计节点最大数目=资源数目*来源数目）。
 
