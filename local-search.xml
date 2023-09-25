@@ -4,6 +4,33 @@
   
   
   <entry>
+    <title>Dubbo超时时间原理</title>
+    <link href="/Dubbo/Dubbo%E8%B6%85%E6%97%B6%E6%97%B6%E9%97%B4%E5%8E%9F%E7%90%86/"/>
+    <url>/Dubbo/Dubbo%E8%B6%85%E6%97%B6%E6%97%B6%E9%97%B4%E5%8E%9F%E7%90%86/</url>
+    
+    <content type="html"><![CDATA[<h2 id="超时设置"><a href="#超时设置" class="headerlink" title="超时设置"></a>超时设置</h2><p>服务端：方法控制——&gt;接口控制——&gt;全局控制<br>消费端：方法控制——&gt;接口控制——&gt;全局控制</p><p><strong>超时设置的优先级</strong></p><blockquote><p>可以这样理解：如果服务端设置了超时，则消费端可以不用设置超时时间，默认会使用服务端超时配置</p></blockquote><p>优先级为：<strong>消费端方法级 &gt; 消费端接口级 &gt; 消费端全局 &gt; 服务端方法级 &gt; 服务端接口级 &gt; 服务端全局</strong></p>]]></content>
+    
+    
+    <categories>
+      
+      <category>Dubbo</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>后端</tag>
+      
+      <tag>中间件</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>Sentinel熔断降级</title>
     <link href="/Sentinel/Sentinel%E7%86%94%E6%96%AD%E9%99%8D%E7%BA%A7/"/>
     <url>/Sentinel/Sentinel%E7%86%94%E6%96%AD%E9%99%8D%E7%BA%A7/</url>
