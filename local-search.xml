@@ -4,6 +4,33 @@
   
   
   <entry>
+    <title>JVM参数详解</title>
+    <link href="/Java/JVM%E5%8F%82%E6%95%B0%E8%AF%A6%E8%A7%A3/"/>
+    <url>/Java/JVM%E5%8F%82%E6%95%B0%E8%AF%A6%E8%A7%A3/</url>
+    
+    <content type="html"><![CDATA[<h2 id="XX-UseConcMarkSweepGC"><a href="#XX-UseConcMarkSweepGC" class="headerlink" title="-XX:+UseConcMarkSweepGC"></a>-XX:+UseConcMarkSweepGC</h2><p>打开此开关后，使用 <strong>CMS + ParNew + Serial Old</strong> 收集器组合来进行内存回收。</p><p><strong>并发标记清除收集器是以获取最短停顿时间为目标。</strong></p><p>开启后，年轻代使用 ParNew 收集器；老年代使用 CMS 收集器，如果 CMS 产生的碎片过多，导致无法存放浮动垃圾，JVM 会出现 Concurrent Mode Failure ，此时使用 Serial Old 收集器来替代 CMS 收集器清理碎片。</p><h2 id="XX-UseAdaptiveSizePolicy"><a href="#XX-UseAdaptiveSizePolicy" class="headerlink" title="-XX:+UseAdaptiveSizePolicy"></a>-XX:+UseAdaptiveSizePolicy</h2><p>JDK 1.8 默认使用 UseParallelGC 垃圾回收器，该垃圾回收器默认启动了 AdaptiveSizePolicy，会根据GC的情况自动计算计算 Eden、From 和 To 区的大小。</p><p><strong>注意事项：</strong></p><ol><li>在 JDK 1.8 中，如果使用 CMS，无论 UseAdaptiveSizePolicy 如何设置，都会将 UseAdaptiveSizePolicy 设置为 false</li><li>由于AdaptiveSizePolicy会动态调整 Eden、Survivor 的大小，有些情况存在Survivor 被自动调为很小，比如十几MB甚至几MB的可能，这个时候YGC回收掉 Eden区后，还存活的对象进入Survivor 装不下，就会直接晋升到老年代，导致老年代占用空间逐渐增加，从而触发FULL GC，如果一次FULL GC的耗时很长（比如到达几百毫秒），那么在要求高响应的系统就是不可取的。</li></ol><p><strong>对于面向外部的大流量、低延迟系统，不建议启用此参数，建议关闭该参数</strong>。</p><h2 id="XX-CMSClassUnloadingEnabled"><a href="#XX-CMSClassUnloadingEnabled" class="headerlink" title="-XX:+CMSClassUnloadingEnabled"></a>-XX:+CMSClassUnloadingEnabled</h2><p>表示开启 CMS 对永久代的垃圾回收（或元空间），避免由于永久代空间耗尽带来 Full GC。</p><h2 id="XX-UseCMSCompactAtFullCollection"><a href="#XX-UseCMSCompactAtFullCollection" class="headerlink" title="-XX:+UseCMSCompactAtFullCollection"></a>-XX:+UseCMSCompactAtFullCollection</h2><p>控制 <strong>Full GC</strong> 的过程中是否进行空间的整理（默认开启，注意是Full GC，不是普通CMS GC）。</p><blockquote><p>和<code>-XX: CMSFullGCsBeforeCompaction=n</code> 配合使用</p></blockquote><h2 id="XX-CMSFullGCsBeforeCompaction-x3D-n"><a href="#XX-CMSFullGCsBeforeCompaction-x3D-n" class="headerlink" title="-XX: CMSFullGCsBeforeCompaction&#x3D;n"></a>-XX: CMSFullGCsBeforeCompaction&#x3D;n</h2><p>控制多少次 Full GC 后进行一次压缩。</p><h2 id="XX-DisableExplicitGC"><a href="#XX-DisableExplicitGC" class="headerlink" title="-XX:+DisableExplicitGC"></a>-XX:+DisableExplicitGC</h2><p>禁止代码中显示调用GC。</p><h2 id="XX-CMSMaxAbortablePrecleanTime"><a href="#XX-CMSMaxAbortablePrecleanTime" class="headerlink" title="-XX:CMSMaxAbortablePrecleanTime"></a>-XX:CMSMaxAbortablePrecleanTime</h2><p>控制CMS垃圾回收的<strong>abortable preclean阶段</strong>结束时间。默认值5s。</p><h4 id="CMS垃圾回收的6个重要阶段"><a href="#CMS垃圾回收的6个重要阶段" class="headerlink" title="CMS垃圾回收的6个重要阶段"></a>CMS垃圾回收的6个重要阶段</h4><ol><li><strong>initial-mark 初始标记</strong>（CMS的第一个STW阶段）：标记GC Root直接引用的对象，GC Root直接引用的对象不多，所以很快。</li><li><strong>concurrent-mark 并发标记阶段</strong>：由第一阶段标记过的对象出发，所有可达的对象都在本阶段标记。</li><li><strong>concurrent-preclean 并发预清理阶段</strong>，也是一个并发执行的阶段。在本阶段，会查找前一阶段执行过程中,从新生代晋升或新分配或被更新的对象。通过并发地重新扫描这些对象，预清理阶段可以减少下一个stop-the-world 重新标记阶段的工作量。</li><li><strong>concurrent-abortable-preclean 并发可中止的预清理阶段</strong>：这个阶段其实跟上一个阶段做的东西一样，也是为了减少下一个STW重新标记阶段的工作量。增加这一阶段是为了让我们可以控制这个阶段的结束时机，比如扫描多长时间（默认5秒）或者Eden区使用占比达到期望比例（默认50%）就结束本阶段</li><li><strong>remark 重标记阶段</strong>（CMS的第二个STW阶段），暂停所有用户线程，从GC Root开始重新扫描整堆，标记存活的对象。需要注意的是，虽然CMS只回收老年代的垃圾对象，但是这个阶段依然需要扫描新生代，因为很多GC Root都在新生代，而这些GC Root指向的对象又在老年代，这称为“跨代引用”。</li><li><strong>concurrent-sweep ，并发清理</strong>。</li></ol><h2 id="XX-HeapDumpOnOutOfMemoryError"><a href="#XX-HeapDumpOnOutOfMemoryError" class="headerlink" title="-XX:+HeapDumpOnOutOfMemoryError"></a>-XX:+HeapDumpOnOutOfMemoryError</h2><p>当JVM发生OOM时，自动生成DUMP文件。</p><h2 id="XX-PrintGCDetails"><a href="#XX-PrintGCDetails" class="headerlink" title="-XX:+PrintGCDetails"></a>-XX:+PrintGCDetails</h2><p>打印输出详细的GC收集日志的信息。</p><blockquote><p>Heap<br> PSYoungGen      total 6144K, used 2058K [0x00000000ff980000, 0x0000000100000000, 0x0000000100000000)<br>  eden space 5632K, 36% used [0x00000000ff980000,0x00000000ffb82950,0x00000000fff00000)<br>  from space 512K, 0% used [0x00000000fff80000,0x00000000fff80000,0x0000000100000000)<br>  to   space 512K, 0% used [0x00000000fff00000,0x00000000fff00000,0x00000000fff80000)<br> ParOldGen       total 13824K, used 0K [0x00000000fec00000, 0x00000000ff980000, 0x00000000ff980000)<br>  object space 13824K, 0% used [0x00000000fec00000,0x00000000fec00000,0x00000000ff980000)<br> Metaspace       used 3032K, capacity 4494K, committed 4864K, reserved 1056768K<br>  class space    used 330K, capacity 386K, committed 512K, reserved 1048576K</p></blockquote><h2 id="XX-PrintGCDateStamps"><a href="#XX-PrintGCDateStamps" class="headerlink" title="-XX:+PrintGCDateStamps"></a>-XX:+PrintGCDateStamps</h2><p>格式化GC日志输出时间。</p><h2 id="XX-CMSInitiatingOccupancyFraction-x3D-70"><a href="#XX-CMSInitiatingOccupancyFraction-x3D-70" class="headerlink" title="-XX:CMSInitiatingOccupancyFraction&#x3D;70"></a>-XX:CMSInitiatingOccupancyFraction&#x3D;70</h2><p>在使用CMS收集器的情况下，老年代使用达到指定阈值的内存时，触发FullGC.。</p><h2 id="XX-UseCMSInitiatingOccupancyOnly"><a href="#XX-UseCMSInitiatingOccupancyOnly" class="headerlink" title="-XX:+UseCMSInitiatingOccupancyOnly"></a>-XX:+UseCMSInitiatingOccupancyOnly</h2><p>指定用设定的回收阈值(-XX:CMSInitiatingOccupancyFraction参数的值)，如果不指定，JVM仅在第一次使用设定值，后续则会根据运行时采集的数据做自动调整。如果指定了该参数，那么每次JVM都会在到达规定设定值时才进行GC。</p>]]></content>
+    
+    
+    <categories>
+      
+      <category>Java</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>后端</tag>
+      
+      <tag>JVM</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>JVM垃圾回收基础</title>
     <link href="/Java/JVM%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E5%9F%BA%E7%A1%80/"/>
     <url>/Java/JVM%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E5%9F%BA%E7%A1%80/</url>
