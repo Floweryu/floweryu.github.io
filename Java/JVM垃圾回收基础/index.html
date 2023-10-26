@@ -226,7 +226,7 @@
         <i class="iconfont icon-chart"></i>
         
           <!-- compatible with older versions-->
-          6.3k 字
+          8.4k 字
         
       </span>
     
@@ -238,7 +238,7 @@
         
         
           <!-- compatible with older versions-->
-          53 分钟
+          71 分钟
         
       </span>
     
@@ -486,6 +486,31 @@
 <td>Metaspace增长时的最小幅度</td>
 </tr>
 </tbody></table>
+<h1 id="内存分配与回收策略"><a href="#内存分配与回收策略" class="headerlink" title="内存分配与回收策略"></a>内存分配与回收策略</h1><p>对象的内存分配，也就是在堆上分配。主要分配在年轻代的 Eden 区上，少数情况下也可能直接分配在老年代中、</p>
+<h2 id="Minor-GC"><a href="#Minor-GC" class="headerlink" title="Minor GC"></a>Minor GC</h2><p>当 Eden 区空间不足时，触发 Minor GC。</p>
+<p>Minor GC 发生在年轻代上，因为年轻代对象存活时间很短，因此 Minor GC 会频繁执行，执行的速度一般也会比较快。</p>
+<p>Minor GC 工作流程：</p>
+<ol>
+<li>Java 应用不断创建对象，通常都是分配在 Eden 区域，当其空间不足时（达到设定的阈值），触发 minor GC。仍然被引用的对象存活下来，被复制到 JVM 选择的 Survivor 区域，而没有被引用的对象则被回收。</li>
+<li>经过一次 Minor GC，Eden 就会空闲下来，直到再次达到 Minor GC 触发条件。这时候，另外一个 Survivor 区域则会成为 To 区域，Eden 区域的存活对象和 From 区域对象，都会被复制到 To 区域，并且存活的年龄计数会被加 1。</li>
+<li>类似第二步的过程会发生很多次，直到有对象年龄计数达到阈值，这时候就会发生所谓的晋升（Promotion）过程，如下图所示，超过阈值的对象会被晋升到老年代。这个阈值是可以通过 <code>-XX:MaxTenuringThreshold</code> 参数指定。</li>
+</ol>
+<h2 id="Full-GC"><a href="#Full-GC" class="headerlink" title="Full GC"></a>Full GC</h2><p>Full GC 发生在老年代上，老年代对象和年轻代的相反，其存活时间长，因此 Full GC 很少执行，而且执行速度会比 Minor GC 慢很多。</p>
+<h2 id="内存分配策略"><a href="#内存分配策略" class="headerlink" title="内存分配策略"></a>内存分配策略</h2><h3 id="对象优先在-Eden-分配"><a href="#对象优先在-Eden-分配" class="headerlink" title="对象优先在 Eden 分配"></a>对象优先在 Eden 分配</h3><p>大多数情况下，对象在年轻代 Eden 区分配，当 Eden 区空间不够时，发起 Minor GC。</p>
+<h3 id="大对象直接进入老年代"><a href="#大对象直接进入老年代" class="headerlink" title="大对象直接进入老年代"></a>大对象直接进入老年代</h3><p>大对象是指需要连续内存空间的对象，最典型的大对象是那种很长的字符串以及数组。</p>
+<p>经常出现大对象会提前触发垃圾收集以获取足够的连续空间分配给大对象。</p>
+<p><code>-XX:PretenureSizeThreshold</code>，大于此值的对象直接在老年代分配，避免在 Eden 区和 Survivor 区之间的大量内存复制。</p>
+<h3 id="长期存活的对象进入老年代"><a href="#长期存活的对象进入老年代" class="headerlink" title="长期存活的对象进入老年代"></a>长期存活的对象进入老年代</h3><p>为对象定义年龄计数器，对象在 Eden 出生并经过 Minor GC 依然存活，将移动到 Survivor 中，年龄就增加 1 岁，增加到一定年龄则移动到老年代中。</p>
+<p><code>-XX:MaxTenuringThreshold</code> 用来定义年龄的阈值。</p>
+<h3 id="动态对象年龄判定"><a href="#动态对象年龄判定" class="headerlink" title="动态对象年龄判定"></a>动态对象年龄判定</h3><p>虚拟机并不是永远地要求对象的年龄必须达到 <code>MaxTenuringThreshold</code> 才能晋升老年代，如果在 Survivor 区中<strong>相同年龄所有对象大小的总和大于 Survivor 空间的一半</strong>，则<strong>年龄大于或等于该年龄的对象可以直接进入老年代</strong>，无需等到 <code>MaxTenuringThreshold</code> 中要求的年龄。</p>
+<h3 id="空间分配担保"><a href="#空间分配担保" class="headerlink" title="空间分配担保"></a>空间分配担保</h3><p>在发生 Minor GC 之前，虚拟机先检查老年代最大可用的连续空间是否大于年轻代所有对象总空间，如果条件成立的话，那么 Minor GC 可以确认是安全的；</p>
+<p>如果不成立的话虚拟机会查看 <code>HandlePromotionFailure</code> 设置值是否允许担保失败，如果允许那么就会继续检查老年代最大可用的连续空间是否大于历次晋升到老年代对象的平均大小，如果大于，将尝试着进行一次 Minor GC，尽管这次 Minor GC 是有风险的；如果小于，或者 <code>HandlePromotionFailure</code> 设置不允许冒险，那这时也要改为进行一次 Full GC。</p>
+<h2 id="Full-GC-的触发条件"><a href="#Full-GC-的触发条件" class="headerlink" title="Full GC 的触发条件"></a>Full GC 的触发条件</h2><p>对于 Minor GC，其触发条件非常简单，当 Eden 区空间满时，就将触发一次 Minor GC。而 Full GC 则相对复杂，有以下条件：</p>
+<h3 id="调用-System-gc"><a href="#调用-System-gc" class="headerlink" title="调用 System.gc()"></a>调用 <code>System.gc()</code></h3><p>此方法的调用是建议虚拟机进行 Full GC，虽然只是建议而非一定，但很多情况下它会触发 Full GC，从而增加 Full GC 的频率，也即增加了间歇性停顿的次数。因此强烈建议能不使用此方法就不要使用，让虚拟机自己去管理它的内存。可通过<code>-XX:DisableExplicitGC</code>来禁止 RMI 调用<code> System.gc()</code>。</p>
+<h3 id="老年代空间不足"><a href="#老年代空间不足" class="headerlink" title="老年代空间不足"></a>老年代空间不足</h3><p>老年代空间不足的常见场景为前文所讲的大对象直接进入老年代、长期存活的对象进入老年代等，当执行 Full GC 后空间仍然不足，则抛出 <code>java.lang.OutOfMemoryError: Java heap space</code>。为避免以上原因引起的 Full GC，调优时应尽量做到让对象在 Minor GC 阶段被回收、让对象在年轻代多存活一段时间以及不要创建过大的对象及数组。</p>
+<h3 id="方法区空间不足"><a href="#方法区空间不足" class="headerlink" title="方法区空间不足"></a>方法区空间不足</h3><p>JVM 规范中运行时数据区域中的方法区，在 HotSpot 虚拟机中又被习惯称为<strong>永久代</strong>，永久代中存放的是类的描述信息、常量、静态变量等数据，当系统中要加载的类、反射的类和调用的方法较多时，永久代可能会被占满，在未配置为采用 CMS GC 的情况下也会执行 Full GC。如果经过 Full GC 仍然回收不了，那么 JVM 会抛出<code> java.lang.OutOfMemoryError: PermGen space</code> 错误。为避免永久代占满造成 Full GC 现象，可采用的方法为增大 Perm Gen 空间或转为使用 CMS GC。</p>
+<h3 id="Minor-GC-的平均晋升空间大小大于老年代可用空间"><a href="#Minor-GC-的平均晋升空间大小大于老年代可用空间" class="headerlink" title="Minor GC 的平均晋升空间大小大于老年代可用空间"></a>Minor GC 的平均晋升空间大小大于老年代可用空间</h3><p>如果发现统计数据说之前 Minor GC 的平均晋升大小比目前老年代剩余的空间大，则不会触发 Minor GC 而是转为触发 Full GC。</p>
+<h3 id="对象大小大于-To-区和老年代的可用内存"><a href="#对象大小大于-To-区和老年代的可用内存" class="headerlink" title="对象大小大于 To 区和老年代的可用内存"></a>对象大小大于 To 区和老年代的可用内存</h3><p>由 <code>Eden 区</code>、<code>From 区</code>向<code> To 区</code>复制时，对象大小大于 To 区可用内存，则把该对象转存到老年代，且老年代的可用内存小于该对象大小</p>
 
                 
               </div>
