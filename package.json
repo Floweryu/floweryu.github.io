@@ -1,0 +1,17 @@
+{
+  "name": "floweryu.github.io",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "docs:dev": "set NODE_OPTIONS=--openssl-legacy-provider & vuepress dev docs",
+    "docs:build": "set NODE_OPTIONS=--openssl-legacy-provider & vuepress build docs"
+  },
+  "author": "zhangjunfeng",
+  "license": "ISC",
+  "devDependencies": {
+    "vuepress": "^1.9.10",
+    "vuepress-theme-reco": "^1.6.17"
+  }
+}
