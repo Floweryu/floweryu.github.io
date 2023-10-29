@@ -37,7 +37,6 @@ export default defineUserConfig({
     },
     navbar: [
       { text: "Home", link: "/" },
-      { text: "分类", link: "/" },
       { text: "Java", link: "/Java/" },
       { text: "Tags", link: "/tags/tag1/1/" },
       {
