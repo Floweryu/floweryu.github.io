@@ -1,3 +1,10 @@
+---
+title: MQ简介
+categories: [RocketMQ]
+tags: [后端, 中间件]
+date: 2023-10-30 13:00:00
+---
+
 ## 1. 为什么要使用MQ
 
 ### 1.1 流量削峰
