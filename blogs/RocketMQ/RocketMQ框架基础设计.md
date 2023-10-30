@@ -2,7 +2,7 @@
 title: RocketMQ框架基础设计
 categories: [RocketMQ]
 tags: [后端, 中间件]
-date: 2023-10-30 16:00:00
+date: 2023/10/30 16:00:00
 ---
 
 ## 简介
