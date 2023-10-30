@@ -12,8 +12,7 @@ export default defineUserConfig({
     authorAvatar: "/head.png",
     docsRepo: "https://github.com/Floweryu/floweryu.github.io",
     docsBranch: "main",
-    docsDir: "example",
-    lastUpdatedText: "上次编辑于",
+    lastUpdatedText: "上次编辑于：",
     // 自动设置分类
     autoSetBlogCategories: true,
     // 自动将分类和标签添加至头部导航条
