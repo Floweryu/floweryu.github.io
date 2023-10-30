@@ -1,3 +1,10 @@
+---
+title: RocketMQ源码解析——服务发现
+categories: [RocketMQ]
+tags: [后端, 中间件]
+date: 2023-10-30 16:25:00
+---
+
 ## 一、服务发现
 
 RocketMQ有下面几个角色

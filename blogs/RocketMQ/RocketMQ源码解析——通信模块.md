@@ -1,3 +1,11 @@
+---
+title: RocketMQ源码解析——通信模块
+categories: [RocketMQ]
+tags: [后端, 中间件]
+date: 2023-10-30 16:25:00
+---
+
+
 ## 基本通信流程
 
 
