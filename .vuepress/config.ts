@@ -3,24 +3,24 @@ import type { DefaultThemeOptions } from "vuepress";
 import recoTheme from "vuepress-theme-reco";
 
 export default defineUserConfig({
-  title: "vuepress-theme-reco",
-  description: "Just playing around",
+  title: "Floweryu",
+  description: "Good Good Study, Day Day On!",
   theme: recoTheme({
     style: "@vuepress-reco/style-default",
     logo: "/logo.png",
-    author: "reco_luan",
+    author: "Floweryu",
     authorAvatar: "/head.png",
-    docsRepo: "https://github.com/vuepress-reco/vuepress-theme-reco-next",
+    docsRepo: "https://github.com/Floweryu/floweryu.github.io",
     docsBranch: "main",
     docsDir: "example",
-    lastUpdatedText: "",
-        // 自动设置分类
+    lastUpdatedText: "上次编辑于",
+    // 自动设置分类
     autoSetBlogCategories: true,
     // 自动将分类和标签添加至头部导航条
     autoAddCategoryToNavbar: {
       location: 1, // 默认 0
-      categoryText: '分类', // 默认 categories
-      tagText: '标签' // 默认 tags
+      categoryText: "分类", // 默认 categories
+      tagText: "标签", // 默认 tags
     },
     // series 为原 sidebar
     series: {
