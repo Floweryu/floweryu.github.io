@@ -1,1 +1,0 @@
-import{_ as o,o as s,c as a,b as e}from"./app-a707055d.js";const t={},r=e("h2",{id:"",tabindex:"-1"},[e("a",{class:"header-anchor",href:"#","aria-hidden":"true"},"#")],-1),n=[r];function c(i,_){return s(),a("div",null,n)}const d=o(t,[["render",c],["__file","ConfigurationClassPostProcessoryuanmalijie.html.vue"]]);export{d as default};
