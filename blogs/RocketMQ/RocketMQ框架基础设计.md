@@ -1,3 +1,10 @@
+---
+title: RocketMQ框架基础设计
+categories: [RocketMQ]
+tags: [后端, 中间件]
+date: 2023-10-30 16:00:00
+---
+
 ## 简介
 
 RocketMQ整体架构设计![image-20220912180057811](./assets/image-20220912180057811.png)
