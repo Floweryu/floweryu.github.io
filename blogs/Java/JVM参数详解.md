@@ -5,7 +5,6 @@ tags: [后端, JVM]
 date: 2023-10-22 13:00:00
 ---
 
-
 ## -XX:+UseConcMarkSweepGC
 
 打开此开关后，使用 **CMS + ParNew + Serial Old** 收集器组合来进行内存回收。
