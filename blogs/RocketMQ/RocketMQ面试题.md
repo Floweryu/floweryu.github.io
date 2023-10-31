@@ -98,6 +98,127 @@ if(order.status != null) {
 
 上面操作使得每一步的操作都比较原子，意味着使用消息表+事务的方案显得可行。
 
-## 参考：
+### 参考：
 
 - https://jaskey.github.io/blog/2020/06/08/rocketmq-message-dedup/
+
+## 如何保证消息不丢失/可靠性？
+
+一条消息从生产到被消费，将会经历三个阶段：
+
+![image-20231031220524727](./assets/image-20231031220524727.png)
+
+### 生产阶段
+
+**概述**：通过请求确认机制保证消息传递可靠性。如果消息发送失败，可以尝试一下操作：
+
+- 直接捕获异常重试
+- 将消息存储到db，然后由后台线程定时重试，确保消息一定到达Broker
+
+**同步发送消息**：
+
+```java
+try {
+    SendResult sendResult = mqProducer.send(msg);
+} catch (RemotingException e) {
+    e.printStackTrace();
+} catch (MQBrokerException e) {
+    e.printStackTrace();
+} catch (InterruptedException e) {
+    e.printStackTrace();
+} catch (MQClientException e) {
+    e.printStackTrace();
+}
+```
+
+`send`方法不抛出异常就表示消息发送成功，业务中可以对异常进行捕获进行重试。
+
+**异步发送消息**：
+
+```java
+try {
+    // 异步发送消息到，主线程不会被阻塞，立刻会返回
+    mqProducer.send(msg, new SendCallback() {
+        @Override
+        public void onSuccess(SendResult sendResult) {
+            // 消息发送成功，
+        }
+
+        @Override
+        public void onException(Throwable e) {
+            // 消息发送失败，可以持久化这条数据，后续进行补偿处理
+        }
+    });
+} catch (RemotingException e) {
+    e.printStackTrace();
+} catch (InterruptedException e) {
+    e.printStackTrace();
+} catch (MQClientException e) {
+    e.printStackTrace();
+}
+```
+
+异步发送一定要重新回调方法，可以在消息发送失败回调`onException()`方法中进行重试处理。
+
+可以通过下面两个参数设置重试次数：
+
+```java
+// 同步发送消息重试次数，默认为 2
+mqProducer.setRetryTimesWhenSendFailed(3);
+// 异步发送消息重试次数，默认为 2
+mqProducer.setRetryTimesWhenSendAsyncFailed(3);
+```
+
+### 存储阶段
+
+**同步刷盘**：只有在消息真正持久化至磁盘后 RocketMQ 的 Broker 端才会真正返回给 Producer 端一个成功的 ACK 响应。同步刷盘对 MQ 消息可靠性来说是一种不错的保障，但是性能上会有较大影响，一般适用于金融业务应用该模式较多。
+
+**异步刷盘（默认）**：能够充分利用 OS 的 **PageCache** 的优势，只要消息写入 **PageCache** 即可将成功的 ACK 返回给 Producer 端。消息刷盘采用后台异步线程提交的方式进行，降低了读写延迟，提高了 MQ 的性能和吞吐量。
+
+所以，为了保证 `Broker` 端不丢消息，可以设置为**同步刷盘**：
+
+```java
+## 默认情况为 ASYNC_FLUSH 
+flushDiskType = SYNC_FLUSH 
+```
+
+当`Broker`服务器未在同步刷盘时间内（**默认为5s**）完成刷盘，则将返回该状态——刷盘超时。
+
+**集群部署**：
+
+为了保证可用性，`Broker `通常采用一主（**master**）多从（**slave**）部署方式。为了保证消息不丢失，消息还需要复制到 **slave** 节点。
+
+默认方式下，消息写入 **master** 成功，就可以返回确认响应给生产者，接着消息将会异步复制到 **slave** 节点。
+
+> flushDiskType 默认值是ASYNC_FLUSH（异步刷盘）
+
+若 master 突然**宕机且不可恢复**，那么还未复制到 **slave** 的消息将会丢失。
+
+所以为了提高消息的可靠性，采用**同步刷盘**方式，**master** 节点将会同步等待 **slave** 节点复制完成，才会返回确认响应。
+
+**小结**：
+
+结合生产阶段与存储阶段，若需要**严格保证消息不丢失**，broker 需要采用如下配置：
+
+```bash
+## master 节点配置
+# 同步刷盘
+flushDiskType = SYNC_FLUSH
+# 同步master服务器
+brokerRole = SYNC_MASTER
+
+## slave 节点配置
+brokerRole = slave
+# 同步刷盘
+flushDiskType = SYNC_FLUSH
+```
+
+### 消费阶段
+
+消费者从 broker 拉取消息，然后执行相应的业务逻辑。一旦执行成功，将会返回 `ConsumeConcurrentlyStatus.CONSUME_SUCCESS` 状态给 Broker。
+
+如果 Broker 未收到消费确认响应或收到其他状态，消费者下次还会再次拉取到该条消息，进行重试。这样的方式有效避免了消费者消费过程发生异常，或者消息在网络传输中丢失的情况。**但业务方需要考虑是否保证消息幂等**。具体方案见上文。
+
+### 参考
+
+- https://github.com/apache/rocketmq/blob/master/docs/cn/best_practice.md
