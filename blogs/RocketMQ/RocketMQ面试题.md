@@ -259,15 +259,15 @@ flushDiskType = SYNC_FLUSH
 
 - **消费者扩容**
 
-​		Topic 中 MessageQueue 的数量大于 Comsumer 实例数量时，可以增加 Consumer 实例数量。MessageQueue 会进行 Rebalance重新分配给 Consumer 实例。但要考虑 DB 读写压力。
+  Topic 中 MessageQueue 的数量大于 Comsumer 实例数量时，可以增加 Consumer 实例数量。MessageQueue 会进行 Rebalance重新分配给 Consumer 实例。但要考虑 DB 读写压力。
 
 - **消息迁移到新 Topic，然后扩容 MessageQueue**
 
-​		Topic 的 MessageQueue 的数量小于或者等于消费者数量，这种情况，再扩容消费者就没什么用，就得考虑扩容 MessageQueue。可以新建一个临时的 Topic，临时的Topic多设置一些 MessageQueue，然后先用一些消费者把消费的数据丢到临时的Topic，因为不用业务处理，只是转发一下消息，速度很快。接下来用扩容的消费者去消费新的 Topic 里的数据，消费完了之后，恢复原状。
+  Topic 的 MessageQueue 的数量小于或者等于消费者数量，这种情况，再扩容消费者就没什么用，就得考虑扩容 MessageQueue。可以新建一个临时的 Topic，临时的Topic多设置一些 MessageQueue，然后先用一些消费者把消费的数据丢到临时的Topic，因为不用业务处理，只是转发一下消息，速度很快。接下来用扩容的消费者去消费新的 Topic 里的数据，消费完了之后，恢复原状。
 
 - **根据具体业务能否限制消息发送速率**
 
-​		结合具体业务，使用令牌桶等限流算法限制消息发送速率。
+  结合具体业务，使用令牌桶等限流算法限制消息发送速率。
 
 ### 参考：
 
