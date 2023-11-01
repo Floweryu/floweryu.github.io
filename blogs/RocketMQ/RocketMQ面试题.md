@@ -272,3 +272,87 @@ flushDiskType = SYNC_FLUSH
 ### 参考：
 
 - https://help.aliyun.com/zh/apsaramq-for-rocketmq/cloud-message-queue-rocketmq-4-x-series/use-cases/how-do-i-handle-accumulated-messages
+
+## 如何实现顺序消息？
+
+### 局部顺序
+- 一个 Topic 下相同标识消息放入同一个分区队列
+- Consumer 同一队列只能有一个线程消费
+
+### 全局顺序
+
+- 一个 Topic 下只能有一个队列
+- Consumer 只能有一个线程消费
+
+**综上所述**：保证一组消息发送到同一分区队列，Consumer 保证同一队列只有一个线程消费。
+
+**代码示例（来自官方）**：
+
+生产者使用 `MessageQueueSelector ` 类来控制 把消息发往哪个 `Message Queue` 。
+
+```java
+public static void main(String[] args) throws Exception {
+    DefaultMQProducer producer = new DefaultMQProducer("order_producer_group");
+    producer.setNamesrvAddr("106.15.42.148:9876");
+    producer.start();
+
+    String[] tags = new String[]{"TagA", "TagB", "TagC"};
+
+    // 订单列表
+    List<OrderStep> orderList = new Producer().buildOrders();
+
+    Date date = new Date();
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    String dateStr = sdf.format(date);
+    for (int i = 0; i < 10; i++) {
+        // 添加时间前缀
+        String body = dateStr + " Hello RocketMQ " + orderList.get(i);
+        Message msg = new Message("TopicTestInorder", tags[i % tags.length], "KEY" + i, body.getBytes(StandardCharsets.UTF_8));
+
+        SendResult sendResult = producer.send(msg, new MessageQueueSelector() {
+            @Override
+            public MessageQueue select(List<MessageQueue> mqs, Message msg, Object arg) {
+                // 根据订单id选择发送的queue
+                Long id = (Long) arg;
+                long index = id % mqs.size();
+                return mqs.get((int) index);
+            }
+        }, orderList.get(i).getOrderId());
+
+        System.out.printf("SendResult status:%s, queueId:%d, body:%s%n",
+                          sendResult.getSendStatus(),
+                          sendResult.getMessageQueue().getQueueId(),
+                          body);
+    }
+    producer.shutdown();
+}
+```
+
+消费端通过使用 `MessageListenerOrderly `来解决单 `MessageQueue` 的消息被并发处理的问题。
+
+```java
+ consumer.registerMessageListener(new MessageListenerOrderly() {
+            final Random random = new Random();
+            
+            @Override
+            public ConsumeOrderlyStatus consumeMessage(List<MessageExt> msgs, ConsumeOrderlyContext context) {
+                context.setAutoCommit(true);
+                for (MessageExt msg : msgs) {
+                    // 可以看到每个queue有唯一的consume线程来消费, 订单对每个queue(分区)有序
+                    System.out.println("consumeThread=" + Thread.currentThread().getName() + "queueId=" + msg.getQueueId() + ", content:" + new String(msg.getBody()));
+                }
+                
+                try {
+                    TimeUnit.SECONDS.sleep(random.nextInt(10));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                return ConsumeOrderlyStatus.SUCCESS;
+            }
+        });
+```
+
+
+
+
+
