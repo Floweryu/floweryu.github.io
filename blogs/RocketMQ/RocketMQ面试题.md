@@ -680,3 +680,68 @@ public MessageQueue selectOneMessageQueue() {
 ### 参考
 
 - https://rocketmq.apache.org/zh/docs/featureBehavior/08consumerloadbalance#section-n9m-6xy-y77
+
+## RocketMQ消息长轮询
+
+Consumer 发送拉取请求到 Broker 端，如果 Broker 有数据则返回，Consumer 端再次拉取。如果 Broker 端没有数据，不立即返回，而是等待一段时间（默认5s）。
+
+- 如果在等待的这段时间，有要拉取的消息，则将消息返回，Consumer 端再次拉取。
+- 如果等待超时，也会直接返回，不会将这个请求一直 hold 住，Consumer 端再次拉取。
+
+>  PullMessageProcessor#processRequest
+
+```java
+case ResponseCode.PULL_NOT_FOUND:
+// 没有拉取到消息时，通过长轮询方式拉取消息
+if (brokerAllowSuspend && hasSuspendFlag) {
+    long pollingTimeMills = suspendTimeoutMillisLong;
+    if (!this.brokerController.getBrokerConfig().isLongPollingEnable()) {
+        pollingTimeMills = this.brokerController.getBrokerConfig().getShortPollingTimeMills();
+    }
+
+    String topic = requestHeader.getTopic();
+    long offset = requestHeader.getQueueOffset();
+    int queueId = requestHeader.getQueueId();
+    PullRequest pullRequest = new PullRequest(request, channel, pollingTimeMills,
+                                              this.brokerController.getMessageStore().now(), offset, subscriptionData, messageFilter);
+    this.brokerController.getPullRequestHoldService().suspendPullRequest(topic, queueId, pullRequest);
+    response = null;
+    break;
+}
+```
+
+`PullRequestHoldService`会不断查看`pullRequestTable`中的请求是否需要结束挂起。
+
+当开启长轮询的时候，先等待5s，然后再去看是否有新消息：
+
+> PullRequestHoldService#run
+
+```java
+public void run() {
+    log.info("{} service started", this.getServiceName());
+    while (!this.isStopped()) {
+        try {
+            // 开启长轮询，等待5s再尝试拉取
+            if (this.brokerController.getBrokerConfig().isLongPollingEnable()) {
+                this.waitForRunning(5 * 1000);
+            } else {
+                // 不开启长轮询，等待1s再尝试拉取
+                this.waitForRunning(this.brokerController.getBrokerConfig().getShortPollingTimeMills());
+            }
+
+            long beginLockTimestamp = this.systemClock.now();
+            // 检查是否有消息
+            this.checkHoldRequest();
+            long costTime = this.systemClock.now() - beginLockTimestamp;
+            if (costTime > 5 * 1000) {
+                log.info("[NOTIFYME] check hold request cost {} ms.", costTime);
+            }
+        } catch (Throwable e) {
+            log.warn(this.getServiceName() + " service has exception. ", e);
+        }
+    }
+
+    log.info("{} service end", this.getServiceName());
+}
+```
+
