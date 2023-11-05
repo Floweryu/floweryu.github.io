@@ -501,7 +501,7 @@ Apache RocketMQ 定时消息的状态支持持久化存储，系统由于故障�
 
 ### 背景
 
-当一条消息消费失败会进行重试，达到最大重试次数后，如果消费依然失败，会将该消息存储到死信队列中。
+当一条消息消费失败会进行重试，达到最大重试次数后（默认16次，客户端可配置），如果消费依然失败，会将该消息存储到死信队列中。
 
 ### 特性
 
@@ -514,4 +514,169 @@ Apache RocketMQ 定时消息的状态支持持久化存储，系统由于故障�
 - 如果一个 Group ID 未产生死信消息，则不会创建死信队列。
 - 一个死信队列包含了对应 Group ID 产生的所游死信消息，不论消息属于哪个 Topic。
 
+## 如何保证高可用？
 
+### NameServer 高可用
+
+NameServer 节点无状态，并且各节点的数据一致，故存在多个 NameServer 节点的情况下，部分 NameServer 不可用也可以保证 MQ 服务正常执行。
+
+### BrokerServer 高可用
+
+一个 Master 可以配置多个 Slave，同时也支持配置多个 Master-Slave 组。
+
+**当其中一个 Master 出现问题时：**
+
+- 由于 Slave 只负责读，当 Master 不可用，它对应的 Slave 仍能保证消息被正常消费。
+- 由于配置多组 Master-Slave 组，其他的 Master-Slave 组也会保证消息的正常发送和消费。
+
+**新版本RocketMQ 4.5.0以后，支持 Slave 自动转成 Master**。
+
+### Consumer 高可用
+
+ Consumer 的高可用是依赖于 Master-Slave 配置的，由于 Master 能够支持读写消息，Slave 支持读消息，当 Master 不可用或繁忙时， Consumer 会被自动切换到从 Slave 读取(自动切换，无需配置)。
+
+### Producer高可用
+
+在创建 Topic 的时候，把 Topic 的多个 Message Queue 创建在多个 Broker 组上（相同Broker名称，不同 brokerId的机器组成一个Broker组）.
+
+这样当一个 Broker 组的 Master 不可用后，其他组的 Master 仍然可用，Producer 仍然可以发送消息。
+
+![image-20231105140930804](./assets/image-20231105140930804.png)
+
+### 参考：
+
+- https://www.cnblogs.com/crazymakercircle/p/15426300.html
+
+
+
+## RocketMQ 整体工作流程
+
+![image-20231105142614501](./assets/image-20231105142614501.png)
+
+集群工作流程：
+
+- 启动 NameServer，NameServer 起来后监听端口，等待 Broker、Producer、Consumer连上来，相当于一个路由控制中心。
+- Broker 启动，跟所有的NameServer保持长连接，定时发送心跳包。心跳包中包含当前 Broker 信息( IP +端口等)以及存储所有 Topic 信息。注册成功后，NameServer 集群中就有 Topic 跟 Broker 的映射关系。
+- 收发消息前，先创建 Topic，创建 Topic 时需要指定该 Topic 要存储在哪些 Broker 上，也可以在发送消息时自动创建 Topic。
+- Producer 发送消息，启动时先跟 NameServer 集群中的其中一台建立长连接，并从 NameServer 中获取当前发送的 Topic 存在哪些 Broker 上，轮询从队列列表中选择一个队列，然后与队列所在的 Broker 建立长连接从而向 Broker 发消息。
+- Consumer 跟 Producer 类似，跟其中一台 NameServer 建立长连接，获取当前订阅 Topic 存在哪些 Broker 上，然后直接跟 Broker 建立连接通道，开始消费消息。
+
+## RocketMQ为什么不使用Zookeeper作为注册中心？
+
+可能有以下几点原因：
+
+- 根据 CAP 理论，Zk 满足的是 CP，并不能保证服务的可用性。
+- Zk 存放数据的处理逻辑太复杂（为了保证数据一致性），这点对于一个注册中心来说没必要。
+- 消息发送弱依赖于注册中心，仅在第一次发送消息从 NameServer 获取 Broker 地址后就缓存在本地，如果 NameServer 集群不可用，短时间内也不影响消费发送和消费。
+
+## RocketMQ 如何对文件进行读写？
+
+使用**零拷贝技术**：RocketMQ 主要通过 Java 的 MappedByteBuffer 对文件进行读写操作，利用了NIO中的FileChannel模型将磁盘上的物理文件直接映射到用户态的内存地址中。
+
+## RocketMQ 的负载均衡
+
+### 生产者负载均衡
+
+Producer 端在发送消息的时候，默认方式下`selectOneMessageQueue()`方法会从`messageQueueList`中选择一个队列（MessageQueue）进行发送消息。具这里有一个`sendLatencyFaultEnable`开关变量，如果开启，在随机递增取模的基础上，再过滤掉`not available` 的 Broker 代理。
+
+```java
+public MessageQueue selectOneMessageQueue(final String lastBrokerName) {
+    // lastBrokerName 是上一次选择的执行发送消息失败的 Broker
+    // 第一次发送消息 lastBrokerName 是null，直接自增索引与当前路由表队列个数取模，返回该位置的消息队列
+    if (lastBrokerName == null) {
+        return selectOneMessageQueue();
+    } else {
+        // 上一次选择的执行发送消息的 Broker 失败
+        for (int i = 0; i < this.messageQueueList.size(); i++) {
+            // 这里自增是为了排除掉失败的 Broker 对应的队列
+            int index = this.sendWhichQueue.incrementAndGet();
+            int pos = Math.abs(index) % this.messageQueueList.size();
+            if (pos < 0)
+                pos = 0;
+            MessageQueue mq = this.messageQueueList.get(pos);
+            // 假如找到一个队列的 Broker 不是上一次失败的，则返回该队列
+            if (!mq.getBrokerName().equals(lastBrokerName)) {
+                return mq;
+            }
+        }
+        return selectOneMessageQueue();
+    }
+}
+
+public MessageQueue selectOneMessageQueue() {
+    int index = this.sendWhichQueue.incrementAndGet();
+    int pos = Math.abs(index) % this.messageQueueList.size();
+    if (pos < 0)
+        pos = 0;
+    return this.messageQueueList.get(pos);
+}
+```
+
+### 消费者负载均衡
+
+根据消费者类型的不同，消费者负载均衡策略分为以下两种模式：
+
+- 消息粒度负载均衡：PushConsumer和SimpleConsumer默认负载策略。
+- 队列粒度负载均衡：PullConsumer默认负载策略。
+
+#### 消息粒度负载均衡
+
+**使用范围**
+
+对于 PushConsumer 和 SimpleConsumer 类型的消费者，默认且仅使用消息粒度负载均衡策略。
+
+**策略原理**
+
+消息粒度负载均衡策略中，同一消费者分组内的多个消费者将按照消息粒度平均分摊主题中的所有消息，即同一个队列中的消息，可被平均分配给多个消费者共同消费。
+
+![image-20231105191920204](./assets/image-20231105191920204.png)
+
+如上图所示，消费者分组 Group A 中有三个消费者 A1、A2 和 A3，这三个消费者将共同消费主题中同一队列 Queue1 中的多条消息。
+
+**注意**： 消息粒度负载均衡策略**保证同一个队列的消息可以被多个消费者共同处理**，但是该策略使用的消息分配算法结果是随机的，并不能指定消息被哪一个特定的消费者处理。
+
+消息粒度的负载均衡机制，是基于内部的单条消息确认语义实现的。消费者获取某条消息后，服务端会将该消息加锁，保证这条消息对其他消费者不可见，直到该消息消费成功或消费超时。因此，即使多个消费者同时消费同一队列的消息，服务端也可保证消息不会被多个消费者重复消费。
+
+**顺序消息负载机制**
+
+在顺序消息中，消息的顺序性指的是同一消息组内的多个消息之间的先后顺序。因此，顺序消息场景下，消息粒度负载均衡策略还需要保证同一消息组内的消息，按照服务端存储的先后顺序进行消费。不同消费者处理同一个消息组内的消息时，会严格按照先后顺序锁定消息状态，确保同一消息组的消息串行消费。
+
+![image-20231105192138636](./assets/image-20231105192138636.png)
+
+如上图所述，队列 Queue1 中有4条顺序消息，这4条消息属于同一消息组 G1，存储顺序由 M1 到 M4。在消费过程中，前面的消息 M1、M2 被消费者 Consumer A1 处理时，只要消费状态没有提交，消费者 A2 是无法并行消费后续的 M3、M4 消息的，必须等前面的消息提交消费状态后才能消费后面的消息。
+
+**策略特点**
+
+相对于队列粒度负载均衡策略，消息粒度负载均衡策略有以下特点：
+
+- **消费分摊更均衡**：对于传统队列级的负载均衡策略，如果队列数量和消费者数量不均衡，则可能会出现部分消费者空闲，或部分消费者处理过多消息的情况。消息粒度负载均衡策略无需关注消费者和队列的相对数量，能够更均匀地分摊消息。
+- **对非对等消费者更友好**：在线上生产环境中，由于网络机房分区延迟、消费者物理资源规格不一致等原因，消费者的处理能力可能会不一致，如果按照队列分配消息，则可能出现部分消费者消息堆积、部分消费者空闲的情况。消息粒度负载均衡策略按需分配，消费者处理任务更均衡。
+- **队列分配运维更方便**：传统基于绑定队列的负载均衡策略必须保证队列数量大于等于消费者数量，以免产生部分消费者获取不到队列出现空转的情况，而消息粒度负载均衡策略则无需关注队列数。
+
+#### 队列粒度负载均衡
+
+**使用范围**
+
+对于历史版本（服务端4.x/3.x版本）的消费者，包括 PullConsumer、DefaultPushConsumer、DefaultPullConsumer、LitePullConsumer 等，默认且仅能使用队列粒度负载均衡策略。
+
+**策略原理**
+
+队列粒度负载均衡策略中，同一消费者分组内的多个消费者将按照队列粒度消费消息，即**每个队列仅被一个消费者消费**。
+
+![image-20231105192403406](./assets/image-20231105192403406.png)
+
+如上图所示，主题中的三个队列 Queue1、Queue2、Queue3 被分配给消费者分组中的两个消费者，每个队列只能分配给一个消费者消费，该示例中由于队列数大于消费者数，因此，消费者 A2 被分配了两个队列。若队列数小于消费者数量，可能会出现部分消费者无绑定队列的情况。
+
+队列粒度的负载均衡，基于队列数量、消费者数量等运行数据进行统一的算法分配，将每个队列绑定到特定的消费者，然后每个消费者按照取消息 > 提交消费位点 > 持久化消费位点的消费语义处理消息，取消息过程不提交消费状态，因此，为了避免消息被多个消费者重复消费，每个队列仅支持被一个消费者消费。
+
+**策略特点**
+
+相对于消息粒度负载均衡策略，队列粒度负载均衡策略分配粒度较大，不够灵活。但该策略在**流式处理场景**下有天然优势，能够保证同一队列的消息被相同的消费者处理，对于批量处理、聚合处理更友好。
+
+**适用场景**
+
+队列粒度负载均衡策略适用于流式计算、数据聚合等需要明确对消息进行聚合、批处理的场景。
+
+### 参考
+
+- https://rocketmq.apache.org/zh/docs/featureBehavior/08consumerloadbalance#section-n9m-6xy-y77
