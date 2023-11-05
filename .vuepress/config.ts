@@ -17,32 +17,63 @@ export default defineUserConfig({
     autoSetBlogCategories: true,
     // 自动将分类和标签添加至头部导航条
     autoAddCategoryToNavbar: {
-      location: 1, // 默认 0
+      location: -1, // 默认 0, 位置
       categoryText: "分类", // 默认 categories
       tagText: "标签", // 默认 tags
     },
     // series 为原 sidebar
     series: {
-      "/docs/theme-reco/": [
+      "/blogs/RocketMQ/": [
         {
-          text: "module one",
-          children: ["home", "theme"],
+          text: "源码解析",
+          children: [
+            "/blogs/RocketMQ/RocketMQ源码解析——服务发现.md",
+            "/blogs/RocketMQ/RocketMQ源码解析——事务消息.md",
+            "/blogs/RocketMQ/RocketMQ源码解析——通信模块.md",
+            "/blogs/RocketMQ/RocketMQ源码解析——消息存储.md",
+          ],
+        },
+      ],
+      "/blogs/Java/": [
+        {
+          text: "Jvm理解",
+          children: [
+            "/blogs/Java/JVM参数详解.md",
+            "/blogs/Java/JVM垃圾回收器.md",
+            "/blogs/Java/JVM垃圾回收基础.md",
+          ],
         },
         {
-          text: "module two",
-          children: ["api", "plugin"],
+          text: "Java并发体系",
+          children: [
+            "/blogs/Java/AQS源码理解——ReentrantLock.md"
+          ],
         },
       ],
     },
     navbar: [
       { text: "Home", link: "/" },
-      { text: "Java", link: "/Java/" },
-      { text: "Tags", link: "/tags/tag1/1/" },
       {
-        text: "Docs",
+        text: "Java",
         children: [
-          { text: "vuepress-reco", link: "/docs/theme-reco/theme" },
-          { text: "vuepress-theme-reco", link: "/blogs/other/guide" },
+          {
+            text: "JVM理解",
+            link: "/blogs/Java/JVM参数详解.md",
+          },
+          {
+            text: "Java并发体系",
+            link: "/blogs/Java/AQS源码理解——ReentrantLock.md",
+          },
+        ],
+      },
+      {
+        text: "RocketMQ",
+        children: [
+          {
+            text: "源码解析",
+            link: "/blogs/RocketMQ/RocketMQ源码解析——服务发现.md",
+          },
+          { text: "面试", link: "/blogs/RocketMQ/RocketMQ面试题.md" },
         ],
       },
     ],
