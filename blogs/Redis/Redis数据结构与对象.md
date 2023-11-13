@@ -200,118 +200,209 @@ e1 原本的长度在 250～253 之间，因为刚才的扩展空间，此时 e1
 
 > Redis 针对压缩列表在设计上的不足，在后来的版本中，新增设计了两种数据结构：quicklist（Redis 3.2 引入） 和 listpack（Redis 5.0 引入）。
 
-## 字典(Dict)
+## 哈希表
 
-### 字典的实现
-
-Redis底层字典使用哈希表作为底层实现，一个哈希表里面可以有多个哈希表节点，而每个哈希表节点就保存了字典中的一个键值对。
+### 结构设计
 
 ```c
 typedef struct dictht {
-    dictRntry **table;	// 哈希表数组
-    unsigned long size;	// 哈希表大小
-    unsigned long sizemask; //哈希表大小掩码，用于计算索引值，总是等于size=1
-    unsigned long used;	//哈希表已有节点的数量
-}
+    //哈希表数组
+    dictEntry **table;
+    //哈希表大小
+    unsigned long size;  
+    //哈希表大小掩码，用于计算索引值
+    unsigned long sizemask;
+    //该哈希表已有的节点数量
+    unsigned long used;
+} dictht;
 ```
 
-#### 哈希表节点
+![image-20231113222232785](./assets/image-20231113222232785.png)
 
-使用`dictEntry`结构表示：
 
-```c
-typedef struct dictEntry {
-    void *key;
-    union {
-        void *val;
-        uint64_tu64;
-        int64_ts64;
-    } v;
-    struct dictEntry *next;
-} dictEntry;
-```
 
-`key`保存键，`v`保存值，`next`指针指向下一个节点.
+### 哈希冲突
 
-#### 字典
+Redis 采用**链式哈希**解决哈希冲突。
+
+![image-20231113222432250](./assets/image-20231113222432250.png)
+
+**链式哈希缺点**：随着链表长度增加，查询该位置上数据耗时也会增加，时间复杂度 **O(n)** 。
+
+为了解决上面问题，Redis 会自动进行 rehash。
+
+### rehash
+
+Redis 定义一个 dict 结构体，这个结构体里定义了**两个哈希表（ht[2]）**。
 
 ```c
 typedef struct dict {
-    dictType *type;	// 类型特定函数
-    void *privdata;	// 私有数据
-    dictht ht[2];	// 哈希表
-    int trehashidx; // rehash索引，当rehash值不在，值为1
+    …
+    //两个Hash表，交替使用，用于rehash操作
+    dictht ht[2]; 
+    …
 } dict;
 ```
 
-#### 哈希算法
+![image-20231113223218820](./assets/image-20231113223218820.png)
 
-```c
-// 使用字典设置的哈希函数，计算键key的哈希值
-hash = dict->type->hashFunction(key);
-// 使用哈希表的sizemask属性和哈希值，计算出索引值
-index = hash & dict->ht[x].sizemask;
-```
+正常服务插入的数据，都会写入到「哈希表 1」，此时的「哈希表 2 」 并没有被分配空间。
 
-#### 解决键冲突
+随着数据逐步增多，触发了 rehash 操作，这个过程分为三步：
 
-链地址法：总是将新节点添加到链表表头的位置。
+- 给「哈希表 2」 分配空间，一般会比「哈希表 1」 大 2 倍；
+- 将「哈希表 1 」的数据迁移到「哈希表 2」 中；
+- 迁移完成后，「哈希表 1 」的空间会被释放，并把「哈希表 2」 设置为「哈希表 1」，然后在「哈希表 2」 新创建一个空白的哈希表，为下次 rehash 做准备。
 
-![image-20210306143633380](./assets/oJ8tYES64POIUGk.png)
+![image-20231113223243857](./assets/image-20231113223243857.png)
 
-## 跳跃表(Skip List)
+**问题**：如果「哈希表 1 」的数据量非常大，那么在迁移至「哈希表 2 」的时候，因为会涉及大量的数据拷贝，此时可能会对 Redis 造成阻塞，无法服务其他请求。
 
-![image-20210306181234657](./assets/dTis4hCSugZoXyn.png)
+### 渐进式 rehash
 
-图片最左侧是跳跃表结构：
+数据的迁移的工作不再是一次性迁移完成，而是分多次迁移。
 
-- `header`：跳跃表头节点
-- `tail`：指向跳跃表的表头节点
-- `level`：记录目前跳跃表内，层数最大的那个节点的层数（表头节点层数不计算再内）
-- `length`：记录跳跃表的长度，即跳跃表目前包含节点的数量（表头节点不计算在内）
-- 后退指针`BW`：指向位于当前节点的前一个节点
-- 分值`score`：节点按照各自保存的分支从小到大排列
+渐进式 rehash 步骤如下：
 
-### 跳跃表节点
+- 给「哈希表 2」 分配空间。
+- **在 rehash 进行期间，每次哈希表元素进行新增、删除、查找或者更新操作时，Redis 除了会执行对应的操作之外，还会顺序将「哈希表 1 」中索引位置上的所有 key-value 迁移到「哈希表 2」 上**；
+- 随着处理客户端发起的哈希表操作请求数量越多，最终在某个时间点会把「哈希表 1 」的所有 key-value 迁移到「哈希表 2」，从而完成 rehash 操作。
 
-```c
-typedef struct zskiplistNode {
-    robj *obj;
-    double score;
-    struct zskiplistNode *backward; //后向指针
-    struct zskiplistLevel {
-        struct zskiplistNode *forward;//每一层中的前向指针
-        unsigned int span;//x.level[i].span 表示节点x在第i层到其下一个节点需跳过的节点数。注：两个相邻节点span为1
-    } level[];
-} zskiplistNode;
-```
+**核心思想**：把一次性大量数据迁移工作的开销，分摊到了多次处理请求的过程中，避免了一次性 rehash 的耗时操作。
 
-`level`数组可以包含多个元素，每个元素都包含一个指向其它节点的指针。
+### rehash 触发条件
 
-每次创建一个新的跳跃表节点的时候，程序根据幂次定律(越大的数出现的而概率越小)随机生成一个介于1和32之间的值作为`level`数组的大小。
+> **负载因子** = 哈希表已保存节点数量 / 哈希表大小
 
-在同一个跳跃表中，各个节点保存的成员对象必须是唯一的，但多个节点保存的分值可以是相同的：分值相同的节点将按照成员对象在字典序中的大小来进行排序。
+触发 rehash 操作的条件，主要有两个：
 
-## 整数集合(intset)
+- **当负载因子大于等于 1** ，并且 Redis 没有在执行 bgsave 命令或者 bgrewiteaof 命令，也就是没有执行 RDB 快照或没有进行 AOF 重写的时候，就会进行 rehash 操作。
+- **当负载因子大于等于 5 时**，此时说明哈希冲突非常严重了，不管有没有有在执行 RDB 快照或 AOF 重写，都会强制进行 rehash 操作。
+
+
+
+## 整数集合
+
+### 结构设计
 
 ```c
 typedef struct intset {
-    uint32_t encoding;	// 编码方式
-    uint32_t length;	// 包含元素数量
-    int8_t contents[];	// 保存元素的数组
+    //编码方式
+    uint32_t encoding;
+    //集合包含的元素数量
+    uint32_t length;
+    //保存元素的数组
+    int8_t contents[];
 } intset;
 ```
 
-- `contents`中的数据是从小到大排列，并且数组中不包含重复项
-- `length`记录包含元素数量，也是`contents`数组的长度
+- 如果 encoding 属性值为 INTSET_ENC_INT16，那么 contents 就是一个 int16_t 类型的数组，数组中每一个元素的类型都是 int16_t 。
+- 如果 encoding 属性值为 INTSET_ENC_INT32，那么 contents 就是一个 int32_t 类型的数组，数组中每一个元素的类型都是 int32_t 。
+- 如果 encoding 属性值为 INTSET_ENC_INT64，那么 contents 就是一个 int64_t 类型的数组，数组中每一个元素的类型都是 int64_t 。
 
-**升级**
+### 类型升级操作
 
-当新元素类型比现在集合中元素类型要长时，需要对集合进行升级。
+将一个新元素加入到整数集合里面，如果新元素的类型（int32_t）比整数集合现有所有元素的类型（int16_t）都要长时，整数集合需要先进行升级，也就是按新元素的类型（int32_t）扩展 contents 数组的空间大小。升级的过程中，也要维持整数集合的有序性。
 
-1. 根据新元素类型，扩展整数集合底层数组的空间大小，并为新元素分配空间。
-2. 将底层数组现有的所有元素都转换成与新元素相同的类型，并将类型转换后的元素放到正确的位置上，需要维持有序性不变。
+整数集合升级的过程不会重新分配一个新类型的数组，而是在原本的数组上扩展空间，然后在将每个元素按间隔类型大小分割，如果 encoding 属性值为 INTSET_ENC_INT16，则每个元素的间隔就是 16 位。
 
-## 压缩列表(ziplist)
+举个例子，假设有一个整数集合里有 3 个类型为 int16_t 的元素：
 
-![image-20210306204120032](./assets/E1YPyZ5Tjpk8CIH.png)
+![image-20231113224451079](./assets/image-20231113224451079.png)
+
+现在，往这个整数集合中加入一个新元素 65535，这个新元素需要用 int32_t 类型来保存，所以整数集合要进行升级操作，首先需要为 contents 数组扩容，**在原本空间的大小之上再扩容多 80 位（4x32-3x16=80），这样就能保存下 4 个类型为 int32_t 的元素**。
+
+![image-20231113224544720](./assets/image-20231113224544720.png)
+
+扩容完 contents 数组空间大小后，需要将之前的三个元素转换为 int32_t 类型，并将转换后的元素放置到正确的位上面，并且需要维持底层数组的有序性不变，整个转换过程如下：
+
+![image-20231113224611062](./assets/image-20231113224611062.png)
+
+**优点**：
+
+如果要让一个数组同时保存 int16_t、int32_t、int64_t 类型的元素，最简单做法就是直接使用 int64_t 类型的数组。不过这样的话，当如果元素都是 int16_t 类型的，就会造成内存浪费的情况。
+
+> 整数集合**不支持降级操作**
+
+## quicklist
+
+> 在 Redis 3.0 之前，List 对象的底层数据结构是双向链表或者压缩列表。然后在 Redis 3.2 的时候，List 对象的底层改由 quicklist 数据结构实现。
+
+quicklist 就是「双向链表 + 压缩列表」组合，因为一个 quicklist 就是一个链表，而链表中的每个元素又是一个压缩列表。\
+
+**背景**：压缩列表元素增加或者变大会有**连锁更新**风险。
+
+**解决方法**：通过控制每个链表节点中的压缩列表的大小或者元素个数，来规避连锁更新的问题。因为压缩列表元素越少或越小，连锁更新带来的影响就越小，从而提供了更好的访问性能。
+
+### 结构设计
+
+```c
+typedef struct quicklist {
+    //quicklist的链表头
+    quicklistNode *head;      //quicklist的链表头
+    //quicklist的链表尾
+    quicklistNode *tail; 
+    //所有压缩列表中的总元素个数
+    unsigned long count;
+    //quicklistNodes的个数
+    unsigned long len;       
+    ...
+} quicklist;
+```
+
+```c
+typedef struct quicklistNode {
+    //前一个quicklistNode
+    struct quicklistNode *prev;     //前一个quicklistNode
+    //下一个quicklistNode
+    struct quicklistNode *next;     //后一个quicklistNode
+    //quicklistNode指向的压缩列表
+    unsigned char *zl;              
+    //压缩列表的的字节大小
+    unsigned int sz;                
+    //压缩列表的元素个数
+    unsigned int count : 16;        //ziplist中的元素个数 
+    ....
+} quicklistNode;
+```
+
+每个 quicklistNode 形成了一个双向链表。但是链表节点的元素不再是单纯保存元素值，而是保存了一个压缩列表，所以 quicklistNode 结构体里有个指向压缩列表的指针 *zl。
+
+![image-20231113225244702](./assets/image-20231113225244702.png)
+
+增加元素步骤：
+
+1. 检查插入位置的压缩链表是否可以容纳该元素。
+2. 上一步检查如果能容纳则直接保存到压缩链表中，否则会新建一个 quickListNode 结构
+
+quicklist 会控制 quicklistNode 结构里的压缩列表的大小或者元素个数，来规避潜在的连锁更新的风险，但是这并没有完全解决连锁更新的问题。
+
+## listpack
+
+> 前言：
+>
+> quicklist 虽然通过控制 quicklistNode 结构里的压缩列表的大小或者元素个数，来减少连锁更新带来的性能影响，但是并没有完全解决连锁更新的问题。
+>
+> 因为 quicklistNode 还是用了压缩列表来保存元素，压缩列表连锁更新的问题，来源于它的结构设计，所以要想彻底解决这个问题，需要设计一个新的数据结构。
+
+Redis 在 5.0 新设计一个数据结构叫 listpack，目的是替代压缩列表，它最大特点是 listpack 中每个节点不再包含前一个节点的长度了，压缩列表每个节点正因为需要保存前一个节点的长度字段，就会有连锁更新的隐患。
+
+> Github在最新 6.2 发行版本中，Redis Hash 对象、ZSet 对象的底层数据结构的压缩列表还未被替换成 listpack，而 Redis 的最新代码（还未发布版本）已经将所有用到压缩列表底层数据结构的 Redis 对象替换成 listpack 数据结构来实现，估计不久将来，Redis 就会发布一个将压缩列表为 listpack 的发行版本。
+
+### 结构设计
+
+![image-20231113230023680](./assets/image-20231113230023680.png)
+
+listpack 头包含两个属性，分别记录了 listpack 总字节数和元素数量，然后 listpack 末尾也有个结尾标识。图中的 listpack entry 就是 listpack 的节点了。
+
+每个 listpack 节点结构如下：
+
+![image-20231113230048885](./assets/image-20231113230048885.png)
+
+主要包含三个方面内容：
+
+- encoding：定义该元素的编码类型，会对不同长度的整数和字符串进行编码；
+- data：实际存放的数据；
+- len：encoding + data的总长度；
+
+listpack **没有压缩列表中记录前一个节点长度的字段**了，listpack 只记录当前节点的长度，向 listpack 加入一个新元素的时候，不会影响其他节点的长度字段的变化，从而避免了压缩列表的连锁更新问题。
