@@ -4,19 +4,17 @@ export default sidebar({
   "/": [
     "",
     {
-      text: "Demo",
+      text: "Java",
       icon: "laptop-code",
-      prefix: "demo/",
-      link: "demo/",
+      prefix: "java/",
+      link: "java/",
       children: "structure",
     },
     {
-      text: "Articles",
+      text: "中间件",
       icon: "book",
-      prefix: "posts/",
+      prefix: "middleware/",
       children: "structure",
     },
-    "intro",
-    "slides",
   ],
 });

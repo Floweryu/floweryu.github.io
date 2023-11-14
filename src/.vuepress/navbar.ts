@@ -29,9 +29,7 @@ export default navbar([
         text: "分布式",
         icon: "pen-to-square",
         link: "distributed/",
-      },
-      { text: "Cherry", icon: "pen-to-square", link: "cherry" },
-      { text: "Dragon Fruit", icon: "pen-to-square", link: "dragonfruit" },
+      }
     ],
   },
 ]);
