@@ -1,1 +1,0 @@
-const t=JSON.parse('{"key":"v-4c4fed4e","path":"/tags/dongtaiguihua/1/","title":"","lang":"en-US","frontmatter":{"layout":"Categories"},"headers":[],"git":{},"filePathRelative":null}');export{t as data};
