@@ -9,7 +9,4 @@ export default defineUserConfig({
   description: "A blog demo for vuepress-theme-hope",
 
   theme,
-
-  // Enable it with pwa
-  // shouldPrefetch: false,
 });
