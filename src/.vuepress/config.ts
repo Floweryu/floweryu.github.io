@@ -4,8 +4,8 @@ import theme from "./theme.js";
 export default defineUserConfig({
   base: "/",
 
-  lang: "en-US",
-  title: "Blog Demo",
+  lang: "zh-CN",
+  title: "Floweryu",
   description: "A blog demo for vuepress-theme-hope",
 
   theme,
