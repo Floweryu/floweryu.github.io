@@ -10,29 +10,27 @@ export default navbar([
   {
     text: "中间件",
     icon: "book",
-    prefix: "/middleware/",
     children: [
       {
         text: "MySQL",
         icon: "pen-to-square",
-        link: "mysql/",
+        link: "/mysql/",
       },
     ],
   },
   {
     text: "随笔",
     icon: "pen-to-square",
-    prefix: "/posts/",
     children: [
       {
         text: "算法笔记",
         icon: "pen-to-square",
-        link: "algorithm/",
+        link: "/algorithm/",
       },
       {
         text: "分布式",
         icon: "pen-to-square",
-        link: "distributed/",
+        link: "/distributed/",
       },
     ],
   },
