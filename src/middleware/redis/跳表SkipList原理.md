@@ -1,7 +1,7 @@
 ---
 title: 跳表SkipList原理
-categories: [Redis]
-tags: [后端, 中间件]
+category: [Redis]
+tag: [后端, 中间件]
 date: 2023-11-06 22:40:00
 ---
 

@@ -5,9 +5,8 @@ export default sidebar({
     "",
     {
       text: "Java",
-      icon: "laptop-code",
+      icon: "mug-saucer",
       prefix: "java/",
-      link: "java/",
       children: "structure",
     },
     {

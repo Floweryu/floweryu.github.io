@@ -1,7 +1,7 @@
 ---
 title: Spring执行BeanFactoryPostProcessor源码理解
-categories: [Spring]
-tags: [后端]
+category: [Spring]
+tag: [后端]
 date: 2023-07-30 20:30:00
 ---
 

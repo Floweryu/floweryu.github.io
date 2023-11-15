@@ -1,7 +1,7 @@
 ---
 title: JVM垃圾回收器
-categories: [Java]
-tags: [后端, JVM]
+category: [Java]
+tag: [后端, JVM]
 date: 2023-10-23 13:00:00
 ---
 

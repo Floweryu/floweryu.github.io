@@ -1,7 +1,7 @@
 ---
 title: Redis数据结构与对象
-categories: [Redis]
-tags: [后端, 中间件]
+category: [Redis]
+tag: [后端, 中间件]
 date: 2023-11-05 22:40:00
 ---
 

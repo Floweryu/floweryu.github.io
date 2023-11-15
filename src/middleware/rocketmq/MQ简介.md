@@ -1,7 +1,7 @@
 ---
 title: MQ简介
-categories: [RocketMQ]
-tags: [后端, 中间件]
+category: [RocketMQ]
+tag: [后端, 中间件]
 date: 2023-10-30 13:00:00
 ---
 

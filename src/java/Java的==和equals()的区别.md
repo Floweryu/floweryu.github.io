@@ -1,7 +1,7 @@
 ﻿---
 title: Java的==和equals区别
-categories: [Java]
-tags: [后端, Java基础]
+category: [Java]
+tag: [后端, Java基础]
 date: 2023-10-17 11:50:00
 ---
 

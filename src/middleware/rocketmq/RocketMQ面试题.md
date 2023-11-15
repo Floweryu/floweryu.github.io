@@ -1,8 +1,8 @@
 ---
 title: RocketMQ面试题
-categories: [RocketMQ]
-tags: [后端, 中间件]
-date: 2023/10/30 22:00:00
+category: [RocketMQ]
+tag: [后端, 中间件]
+date: 2023-10-30 22:00:00
 ---
 
 ## RocketMQ如何保证消费幂等？

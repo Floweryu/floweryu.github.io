@@ -1,7 +1,7 @@
 ---
 title: Sentinel熔断降级
-categories: [Sentinel]
-tags: [后端, 中间件]
+category: [Sentinel]
+tag: [后端, 中间件]
 date: 2023-09-18 22:30:00
 ---
 

@@ -2,7 +2,7 @@
 home: true
 layout: BlogHome
 icon: home
-title: 首页png
+title: 首页
 heroImage: /logo_dark.png
 heroText: Floweryu Blogs
 bgImage: /background.png

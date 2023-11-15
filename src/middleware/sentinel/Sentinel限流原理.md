@@ -1,7 +1,7 @@
 ---
 title: Sentinel限流原理
-categories: [Sentinel]
-tags: [后端, 中间件]
+category: [Sentinel]
+tag: [后端, 中间件]
 date: 2023-07-09 19:00:00
 ---
 

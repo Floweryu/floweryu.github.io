@@ -1,7 +1,7 @@
 ---
 title: Dubbo超时时间原理
-categories: [Dubbo]
-tags: [后端, 中间件]
+category: [Dubbo]
+tag: [后端, 中间件]
 date: 2023-09-25 16:30:00
 ---
 

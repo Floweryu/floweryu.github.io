@@ -1,7 +1,7 @@
 ---
 title: 剑指Offer专题
-categories: [算法]
-tags: [剑指offer]
+category: [算法]
+tag: [剑指offer]
 date: 2023-07-09 19:00:00
 ---
 ## 剑指 Offer 03. 数组中重复的数字

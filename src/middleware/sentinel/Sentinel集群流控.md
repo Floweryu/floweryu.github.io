@@ -1,7 +1,7 @@
 ---
 title: Sentinel集群流控（未完待续）
-categories: [Sentinel]
-tags: [后端, 中间件]
+category: [Sentinel]
+tag: [后端, 中间件]
 date: 2023-07-04 12:55:00
 ---
 

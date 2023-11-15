@@ -11,6 +11,7 @@ export default hopeTheme({
     email: "869830837@qq.com",
   },
 
+  iconPrefix: "fas fa-",
   iconAssets: "fontawesome-with-brands",
 
   logo: "/logo_dark.png",
@@ -18,8 +19,14 @@ export default hopeTheme({
   repo: "Floweryu/floweryu.github.io",
 
   docsDir: "src",
-  
+
   navbar,
+
+  navbarLayout: {
+    start: ["Brand"],
+    center: ["Search"],
+    end: ["Links", "Repo", "Outlook"],
+  },
 
   sidebar,
 

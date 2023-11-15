@@ -2,7 +2,11 @@ import { navbar } from "vuepress-theme-hope";
 
 export default navbar([
   "/",
-  "/java/",
+  {
+    text: "Java",
+    icon: "mug-saucer",
+    link: "/java/",
+  },
   {
     text: "中间件",
     icon: "book",
@@ -29,7 +33,17 @@ export default navbar([
         text: "分布式",
         icon: "pen-to-square",
         link: "distributed/",
-      }
+      },
     ],
+  },
+  {
+    text: "分类",
+    icon: "bookmark",
+    link: "/category/",
+  },
+  {
+    text: "标签",
+    icon: "tag",
+    link: "/tag/",
   },
 ]);

@@ -1,7 +1,7 @@
 ---
 title: JVM垃圾回收基础
-categories: [Java]
-tags: [后端, JVM]
+category: [Java]
+tag: [后端, JVM]
 date: 2023-10-21 23:00:00
 ---
 

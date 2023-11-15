@@ -1,7 +1,7 @@
 ---
 title: ThreadLocal详解
-categories: [Java]
-tags: [后端, 并发, 源码]
+category: [Java]
+tag: [后端, 并发, 源码]
 date: 2023-11-05 22:35:00
 ---
 

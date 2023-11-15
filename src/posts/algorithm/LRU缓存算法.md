@@ -1,7 +1,7 @@
 ---
 title: LRU缓存算法
-categories: [算法]
-tags: [LRU]
+category: [算法]
+tag: [LRU]
 date: 2023-07-09 19:00:00
 ---
 ## 双向链表+哈希表（非线程安全）
