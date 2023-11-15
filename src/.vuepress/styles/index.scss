@@ -1,1 +1,9 @@
 // place your custom styles here
+#app {
+  html[data-theme="light"] & {
+    --code-bg-color: #fff;
+  }
+  html[data-theme="dark"] & {
+    --code-bg-color: #222;
+  }
+}

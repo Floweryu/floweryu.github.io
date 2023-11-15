@@ -1,6 +1,6 @@
 import { hopeTheme } from "vuepress-theme-hope";
-import navbar from "./navbar.js";
-import sidebar from "./sidebar.js";
+import navbar from "./navbar.ts";
+import sidebar from "./sidebar.ts";
 
 export default hopeTheme({
   hostname: "https://floweryu.top",
@@ -31,8 +31,10 @@ export default hopeTheme({
   sidebar,
 
   footer: "Default footer",
-
+  //pure: true, // 纯净模式
   displayFooter: true,
+
+  contributors: false,
 
   blog: {
     description: "浮生若梦，为欢几何？",
@@ -48,6 +50,10 @@ export default hopeTheme({
   },
 
   plugins: {
+    prismjs: {
+      light: "one-light",
+      dark: "one-dark",
+    },
     blog: {
       excerpt: false,
       excerptLength: 0,
