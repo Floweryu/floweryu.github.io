@@ -13,23 +13,48 @@ export default navbar([
     children: [
       {
         text: "MySQL",
-        icon: "pen-to-square",
+        icon: "fa-solid fa-signature",
         link: "/mysql/",
+      },
+      {
+        text: "Redis",
+        icon: "fa-solid fa-signature",
+        link: "/redis/",
+      },
+      {
+        text: "Sentinel",
+        icon: "fa-solid fa-signature",
+        link: "/sentinel/",
       },
     ],
   },
   {
+    text: "Spring",
+    icon: "fa-solid fa-chart-simple",
+    link: "/spring/",
+  },
+  {
+    text: "RocketMQ",
+    icon: "fa-solid fa-chart-simple",
+    link: "/rocketmq/",
+  },
+  {
+    text: "Dubbo",
+    icon: "fa-solid fa-chart-simple",
+    link: "/dubbo/",
+  },
+  {
+    text: "算法笔记",
+    icon: "fa-solid fa-chart-simple",
+    link: "/algorithm/",
+  },
+  {
     text: "随笔",
-    icon: "pen-to-square",
+    icon: "fa-solid fa-chart-simple",
     children: [
       {
-        text: "算法笔记",
-        icon: "pen-to-square",
-        link: "/algorithm/",
-      },
-      {
         text: "分布式",
-        icon: "pen-to-square",
+        icon: "fa-solid fa-signature",
         link: "/distributed/",
       },
     ],

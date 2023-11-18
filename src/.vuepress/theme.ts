@@ -11,7 +11,6 @@ export default hopeTheme({
     email: "869830837@qq.com",
   },
 
-  iconPrefix: "fas fa-",
   iconAssets: "fontawesome-with-brands",
 
   logo: "/logo_dark.png",
