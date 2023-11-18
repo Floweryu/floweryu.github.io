@@ -8,5 +8,5 @@ heroText: Floweryu Blogs
 tagline: Good Good Study, Day Day On!
 bgImage: /image/background1.jpg
 heroFullScreen: true
-footer: customize your footer text
+footer: Good Good Study, Day Day On!
 ---
