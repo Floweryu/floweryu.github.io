@@ -5,6 +5,8 @@ import sidebar from "./sidebar.ts";
 export default hopeTheme({
   hostname: "https://floweryu.top",
 
+  favicon: "logo.png",
+
   author: {
     name: "Floweryu",
     url: "https://github.com/Floweryu/floweryu.github.io",
