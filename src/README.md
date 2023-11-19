@@ -6,7 +6,7 @@ title: 首页
 heroImage: /logo_dark.png
 heroText: Floweryu Blogs
 tagline: Good Good Study, Day Day On!
-bgImage: "https://floweryu-image.oss-cn-shanghai.aliyuncs.com/background5.jpg"
+bgImage: /image/background5.jpg
 heroFullScreen: true
 footer: Good Good Study, Day Day On!
 ---
