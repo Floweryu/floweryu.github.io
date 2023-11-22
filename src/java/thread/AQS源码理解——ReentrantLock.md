@@ -1,7 +1,7 @@
 ---
 title: AQS源码理解——ReentrantLock
 category: [Java]
-tag: [后端, 源码]
+tag: [后端, 源码, 并发]
 date: 2023-10-10 20:25:00
 ---
 
