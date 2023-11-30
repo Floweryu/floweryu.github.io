@@ -9,4 +9,10 @@ export default defineUserConfig({
   description: "A blog demo for vuepress-theme-hope",
 
   theme,
+
+  markdown: {
+    headers: {
+      level: [2, 3, 4, 5, 6]
+    }
+  }
 });
