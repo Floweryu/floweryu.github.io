@@ -59,7 +59,7 @@ B+ 树中每一层都是通过双向链表连接起来的，如果是以页为�
 
 ### COMPACT 行格式
 
-![image-20231206200201156](./assets/image-20231206200201156.png)
+![image-20231211175059914](./assets/image-20231211175059914.png)
 
 #### 记录的额外信息
 
@@ -83,7 +83,7 @@ CREATE TABLE `t_user` (
 
 假设有下面三条记录：
 
-<img src="./assets/image-20231206201032170.png" alt="image-20231206201032170" style="zoom:50%;" />
+<img src="./assets/image-20231211175116609.png" alt="image-20231211175116609" style="zoom:50%;" />
 
 第一条记录「只看变长字段」：
 
@@ -92,15 +92,15 @@ CREATE TABLE `t_user` (
 
 这些变长字段的真实数据占用的字节数会按照列的顺序 **逆序存放**，所以「变长字段长度列表」里的内容是「 03 01」，而不是 「01 03」。
 
-![image-20231206201329543](./assets/image-20231206201329543.png)
+![image-20231211175130713](./assets/image-20231211175130713.png)
 
 同理，第二天记录：
 
-![image-20231206201423213](./assets/image-20231206201423213.png)
+![image-20231211175144129](./assets/image-20231211175144129.png)
 
 **第三条记录** 中 `phone `列的值是 NULL，**NULL 是不会存放在行格式中记录的真实数据部分里的**，所以「变长字段长度列表」里不需要保存值为 NULL 的变长字段的长度。
 
-![image-20231206201641640](./assets/image-20231206201641640.png)
+![image-20231211175158047](./assets/image-20231211175158047.png)
 
 ***
 
@@ -135,23 +135,23 @@ CREATE TABLE `t_user` (
 
 【举例】以上面表举例：
 
-<img src="./assets/image-20231206203749468.png" alt="image-20231206203749468" style="zoom:50%;" />
+<img src="./assets/image-20231211175211793.png" alt="image-20231211175211793" style="zoom:50%;" />
 
 第一条记录：
 
-<img src="./assets/image-20231206203825029.png" alt="image-20231206203825029" style="zoom: 25%;" />
+<img src="./assets/image-20231211175231142.png" alt="image-20231211175231142" style="zoom:25%;" />
 
 但是 InnoDB 是用整数字节的二进制位来表示 NULL 值列表的，现在不足 8 位，所以要在高位补 0，最终用二进制来表示：
 
-<img src="./assets/image-20231206203903695.png" alt="image-20231206203903695" style="zoom: 33%;" />
+<img src="./assets/image-20231211175251663.png" alt="image-20231211175251663" style="zoom: 33%;" />
 
-第二天记录：
+第二条记录：
 
-<img src="./assets/image-20231206203950260.png" alt="image-20231206203950260" style="zoom: 33%;" />
+<img src="./assets/image-20231211175306029.png" alt="image-20231211175306029" style="zoom:33%;" />
 
 将三条记录的 NULL 值列表填充完毕后，行格式为下面这样：
 
-<img src="./assets/image-20231206204118754.png" alt="image-20231206204118754" style="zoom:50%;" />
+<img src="./assets/image-20231211175324947.png" alt="image-20231211175324947" style="zoom:50%;" />
 
 ##### 3. 记录头信息
 
@@ -204,3 +204,4 @@ CREATE TABLE `t_user` (
 ## 参考
 
 - [MySQL一行记录如何存储](https://www.xiaolincoding.com/mysql/base/row_format.html)
+
