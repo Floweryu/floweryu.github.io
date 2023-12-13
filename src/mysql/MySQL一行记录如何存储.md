@@ -1,7 +1,7 @@
 ---
 title: MySQL一行记录如何存储
 category: [MySQL]
-tag: [后端, 原理]
+tag: [数据库, 原理]
 date: 2023-12-06 20:15:00
 ---
 
