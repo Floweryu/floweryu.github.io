@@ -90,24 +90,26 @@ update user set age = 10 where id > 49;
 - **Gap Lock**：间隙锁，锁定一个范围，但是不包含记录本身。
 - **Next-Key Lock**：Record Lock + Gap Lock 的组合，锁定一个范围，并且锁定记录本身。
 
+![1614350-20201115221250844-767865625](./assets/Q934aj28IrNkueD.png)
+
 #### 记录锁 Record Lock
 
 InnoDB实现了以下两种类型的行锁：
 
-- **共享锁（S）**：加了锁的记录，所有事务都能去读取但不能修改，同时阻止其他事务获得相同数据集的「排他锁」。
-- **排他锁（X）**：允许已经获得排他锁的事务去更新数据，阻止其他事务取得相同数据集的「共享锁」和「排他锁」。
+- **共享锁（S）**：加了锁的记录，所有事务都能去读取但不能修改。「S 锁」与「 X 锁」不兼容，「S 锁」与 「S 锁」兼容。
+- **排他锁（X）**：允许已经获得排他锁的事务去更新数据。「X 锁」与「S 锁」和「X 锁」都不兼容。
 
-【**`select for update`**】
+**`select for update` 增加 X 锁** 
 
-在执行这个 select 查询语句的时候，会将对应的索引访问条目加上排他锁（X锁），也就是说这个语句对应的锁就相当于update带来的效果。
+在执行这个 select 查询语句的时候，会将对应的索引访问条目加上排他锁（X锁），也就是说这个语句对应的锁就相当于 `update` 带来的效果。
 
-**使用场景**：为了让确保自己查找到的数据一定是最新数据，并且查找到后的数据值允许自己来修改，此时就需要用到select for update语句。
+**使用场景**：为了让确保自己查找到的数据一定是最新数据，并且查找到后的数据值允许自己来修改，此时就需要用到`select for update`语句。
 
 **性能分析**：`select for update`语句相当于一个`update`语句。在业务繁忙的情况下，如果事务没有及时地`commit`或者`rollback`可能会造成事务长时间的等待，从而影响数据库的并发使用效率。
 
-【**`select lock in share mode`**】
+**`select lock in share mode`** 增加 S 锁
 
-`in share mode` 子句的作用就是将查找的数据加上一个share锁，这个就是表示其他的事务只能对这些数据进行简单的 select 操作，而不能进行 DML 操作。
+`in share mode` 子句的作用就是将查找的数据加上一个 `share` 锁，这个就是表示其他的事务只能对这些数据进行简单的 `select` 操作，而不能进行 DML 操作。
 
 **使用场景**：为了确保自己查询的数据不会被其他事务正在修改，也就是确保自己查询到的数据是最新的数据，并且不允许其他事务来修改数据。与`select for update`不同的是，本事务在查找完之后不一定能去更新数据，因为有可能其他事务也对同数据集使用了` in share mode` 的方式加上了S锁；
 
@@ -115,9 +117,56 @@ InnoDB实现了以下两种类型的行锁：
 
 #### 间隙锁 Gap Lock
 
-Gap Lock 称为间隙锁，只存在于可重复读隔离级别，目的是为了解决可重复读隔离级别下「」的现象。
+Gap Lock 称为间隙锁，只存在于可重复读隔离级别，目的是为了解决可重复读隔离级别下「幻读」的现象。
 
-上面这段话表明间隙锁是可以共存的，共享间隙锁与独占间隙锁之间是没有区别的，两者之间并不冲突。其存在的目的都是防止其他事务往间隙中插入新的纪录，故而一个事务所采取的间隙锁是不会去阻止另外一个事务在同一个间隙中加锁的。
+间隙锁是可以共存的，「共享间隙锁」与「独占间隙锁」之间是没有区别的，**两者之间并不冲突**。其存在的目的都是防止其他事务往间隙中插入新的纪录，故而一个事务所采取的间隙锁是不会去阻止另外一个事务在同一个间隙中加锁的。
+
+**示例：**假设表中有一个范围 id 为 （3，5）的间隙锁，则其他事务就无法插入 id = 4 的记录，从而防止幻读。
+
+#### 临建锁 Next-Key Lock
+
+ Record Lock + Gap Lock 的组合，锁定一个范围，并且锁定记录本身。
+
+**示例：**假设表中有一个范围 id 为（3，5] 的 next-key lock，那么其他事务即不能插入 id = 4 记录，也不能修改 id = 5 这条记录。
+
+**next-key lock 是包含间隙锁 + 记录锁的，如果一个事务获取了 X 型的 next-key lock，那么另外一个事务在获取相同范围的 X 型的 next-key lock 时，是会被阻塞的**。
+
+#### 插入意向锁
+
+一个事务在插入一条记录的时候，需要判断插入位置是否已被其他事务加了间隙锁（next-key lock 也包含间隙锁）。
+
+如果有的话，插入操作就会发生**阻塞**，直到拥有间隙锁的那个事务提交为止（释放间隙锁的时刻），在此期间会生成一个**插入意向锁**，表明有事务想在某个区间插入新记录，但是现在处于等待状态。
+
+【**示例**】
+
+假设事务 A 对表添加了 id 范围为 （3，5）的间隙锁，当事务 A 还未提交时，事务 B 向该表插入一条 id = 4 的记录，这时会判断插入位置已经有了间隙锁，事务 B 生成一个**插入意向锁**，将锁 的状态设置为等待状态，事务 B 被阻塞，直到事务 A 提交了事务。
+
+「插入意向锁」与「间隙锁」的重要的差别是：尽管「插入意向锁」也属于间隙锁，但两个事务却不能在同一时间内，一个拥有间隙锁，另一个拥有该间隙区间内的插入意向锁（当然，插入意向锁如果不在间隙锁区间内则是可以的）。
+
+#### 不同类型锁之间的兼容
+
+不同类型的锁之间的兼容如下表所示（其中行表示已有的锁，列表示意图加上的锁）：
+
+|          | RECORED | GAP  | NEXT-KEY | II GAP（插入意向锁） |
+| -------- | ------- | ---- | -------- | -------------------- |
+| RECORED  |         | 兼容 |          | 兼容                 |
+| GAP      | 兼容    | 兼容 | 兼容     | 兼容                 |
+| NEXT-KEY |         | 兼容 |          | 兼容                 |
+| II GAP   | 兼容    |      |          | 兼容                 |
+
+
+
+其中，第一行表示已有的锁，第一列表示要加的锁。插入意向锁较为特殊，所以我们先对插入意向锁做个总结，如下：
+
+- 插入意向锁不影响其他事务加其他任何锁。也就是说，一个事务已经获取了插入意向锁，对其他事务是没有任何影响的；
+- 插入意向锁与间隙锁和 Next-key 锁冲突。也就是说，一个事务想要获取插入意向锁，如果有其他事务已经加了间隙锁或 Next-key 锁，则会阻塞。
+
+其他类型的锁的规则较为简单：
+
+- 间隙锁不和其他锁（不包括插入意向锁）冲突；
+- 记录锁和记录锁冲突，Next-key 锁和 Next-key 锁冲突，记录锁和 Next-key 锁冲突；
+
+---
 
 ### 表级锁
 
@@ -202,8 +251,6 @@ InnoDB 存储引擎提供了个 `innodb_autoinc_lock_mode` 的系统变量，是
   - 普通 `insert` 语句，自增锁在申请之后就马上释放。
   - 类似 `insert … select` 这样的批量插入数据的语句，自增锁还是要等语句结束后才被释放。
 
-
-
 ### 两种锁比较
 
 表锁：加锁过程的开销小，加锁的速度快；不会出现死锁的情况；锁定的粒度大，发生锁冲突的几率大，并发度低。
@@ -218,177 +265,117 @@ InnoDB 存储引擎提供了个 `innodb_autoinc_lock_mode` 的系统变量，是
 - 在 InnoDB 中，除单个 SQL 组成的事务外，锁是逐步获得的，这就决定了在 InnoDB 中发生死锁是可能的。
 - 行级锁只在存储引擎层实现，而 MySQL 服务器层没有实现。 行级锁更适合于有大量按索引条件并发更新少量不同数据，同时又有并发查询的应用，如一些在线事务处理（OLTP）系统。
 
-## 2.3 InnoDB的加锁方法
-
-- 意向锁是 InnoDB 自动加的，不需要用户干预；
-- 对于`UPDATE`、`DELETE`和`INSERT`语句，`InnoDB`会自动给涉及的数据集加上排他锁；
-- 对于普通的SELECT语句，InnoDB不会加任何锁；事务可以通过以下语句显示给记录集添加共享锁或排他锁：
-  - 共享锁（S）：`select * from table_name where ... lock in share mode`。此时其他 session 仍然可以查询记录，并也可以对该记录加 `share mode` 的共享锁。但是如果当前事务需要对该记录进行更新操作，则很有可能造成死锁。
-  - 排他锁（X）：`select * from table_name where ... for update`。其他session可以查询记录，但是不能对该记录加共享锁或排他锁，只能等待锁释放后在加锁。
-
-
-
-## 2.4 InnoDB的锁争用情况
-
-可以通过检查 InnoDB_row_lock 状态变量来分析系统上的行锁的争夺情况：
-
-```mysql
-mysql> show status like 'innodb_row_lock%';
-+-------------------------------+-------+
-| Variable_name                 | Value |
-+-------------------------------+-------+
-| Innodb_row_lock_current_waits | 0     |
-| Innodb_row_lock_time          | 85677 |
-| Innodb_row_lock_time_avg      | 42838 |
-| Innodb_row_lock_time_max      | 49289 |
-| Innodb_row_lock_waits         | 2     |
-+-------------------------------+-------+
-5 rows in set (0.52 sec)
-```
-
-# 3. MyISAM表锁
-
-## 3.1 MyISAM表级锁模式
-
-- 表共享读锁（Table Read Lock）：不会阻塞其他线程对同一个表的读操作请求，但会阻塞其他线程的写操作请求；
-- 表独占写锁（Table Write Lock）：一旦表被加上独占写锁，那么无论其他线程是读操作还是写操作，都会被阻塞；
-
-默认情况下，写锁比读锁具有更高的优先级；当一个锁释放后，那么它会优先相应写锁等待队列中的锁请求，然后再是读锁中等待的获取锁的请求。
-
-> This ensures that updates to a table are not “starved” even when there is heavy SELECT activity for the table. However, if there are many updates for a table, SELECT statements wait until there are no more updates.
-
-这种设定也是MyISAM表不适合于有大量更新操作和查询操作的原因。大量更新操作可能会造成查询操作很难以获取读锁，从而过长的阻塞。同时一些需要长时间运行的查询操作，也会使得线程“饿死”，应用中应尽量避免出现长时间运行的查询操作（在可能的情况下可以通过使用中间表等措施对SQL语句做一定的“分解”，使每一步查询都能在较短的时间内完成，从而减少锁冲突。如果复杂查询不可避免，应尽量安排在数据库空闲时段执行，比如一些定期统计可以安排在夜间执行。）
-
-可以通过一些设置来调节MyISAM的调度行为：
-
-- 通过指定启动参数`low-priority-updates`，使MyISAM引擎默认给予读请求以优先的权利；
-- 通过执行命令`SET LOW_PRIORITY_UPDATES=1`，使该连接发出的更新请求优先级降低；
-- 通过指定INSERT、UPDATE、DELETE语句的`LOW_PRIORITY`属性，降低该语句的优先级；
-- 给系统参数`max_write_lock_count`设置一个合适的值，当一个表的读锁达到这个值后，MySQL就暂时将写请求的优先级降低，给读进程一定获得锁的机会。
-
-## 3.2 MyISAM对表加锁分析
-
-MyISAM在执行查询语句（SELECT）前，会自动给涉及的所有表加读锁，在执行更新操作（UPDATE、DELETE、INSERT等）前，会自动给涉及的表加写锁，这个过程并不需要用户干预，因此用户一般不需要直接用 LOCK TABLE 命令给 MyISAM 表显式加锁。在自动加锁的情况下，MyISAM 总是一次获得 SQL 语句所需要的全部锁，这也正是 MyISAM 表不会出现死锁（Deadlock Free）的原因。
-
-MyISAM存储引擎支持并发插入，以减少给定表的读操作和写操作之间的争用：
-
-如果MyISAM表在数据文件中没有空闲块（由于删除或更新导致的空行），则行始终插入数据文件的末尾。在这种情况下，你可以自由混合并发使用MyISAM表的 INSERT 和 SELECT 语句而不需要加锁（你可以在其他线程进行读操作的情况下，同时将行插入到MyISAM表中）。如果文件中有空闲块，则并发插入会被禁止，但当所有的空闲块重新填充有新数据时，它又会自动启用。 要控制此行为，可以使用MySQL的concurrent_insert系统变量。
-
-- 当concurrent_insert=0时，不允许并发插入功能。
-- 当concurrent_insert=1时，允许对没有空闲块的表使用并发插入，新数据位于数据文件结尾（缺省）。
-- 当concurrent_insert=2时，不管表有没有空想快，都允许在数据文件结尾并发插入。
-
-## 3.3 显式加表锁的应用
-
-上面已经提及了表锁的加锁方式，一般表锁都是隐式加锁的，不需要我们去主动声明，但是也有需要显式加锁的情况，这里简单做下介绍：
-
-给MyISAM表显式加锁，一般是为了一定程度模拟事务操作，实现对某一时间点多个表的一致性读取。例如，有一个订单表orders，其中记录有订单的总金额total，同时还有一个订单明细表 order_detail，其中记录有订单每一产品的金额小计 subtotal，假设我们需要检查这两个表的金额合计是否相等，可能就需要执行如下两条SQL：
-
-```sql
-CopySELECT SUM(total) FROM orders;
-SELECT SUM(subtotal) FROM order_detail;
-```
-
-这时，如果不先给这两个表加锁，就可能产生错误的结果，因为第一条语句执行过程中，order_detail表可能已经发生了改变。因此，正确的方法应该是：
-
-```sql
-CopyLOCK tables orders read local,order_detail read local;
-SELECT SUM(total) FROM orders;
-SELECT SUM(subtotal) FROM order_detail;
-Unlock tables;
-```
-
-## 3.4 查看表锁争用情况
-
-可以通过检查 table_locks_waited 和 table_locks_immediate 状态变量来分析系统上的表锁的争夺，如果 Table_locks_waited 的值比较高，则说明存在着较严重的表级锁争用情况：
-
-```sql
-Copymysql> SHOW STATUS LIKE 'Table%';
-+-----------------------+---------+
-| Variable_name | Value |
-+-----------------------+---------+
-| Table_locks_immediate | 1151552 |
-| Table_locks_waited | 15324 |
-+-----------------------+---------+
-```
-
-# 4. 行锁的类型
-
-根据锁的粒度将锁分为了行锁与表锁，根据使用场景的不同，又可以将行锁进行进一步的划分：`Next-Key Lock`、`Gap Lock`、`Record Lock`以及`插入意向GAP锁`。
-
-不同的锁锁定的位置是不同的，比如说记录锁只锁定对应的记录，而间隙锁锁住记录和记录之间的间隙，`Next-key Lock`则锁住所属记录之间的间隙。不同的锁类型锁定的范围大致如图所示：
-
-![1614350-20201115221250844-767865625](./assets/Q934aj28IrNkueD.png)
-
-## 4.1 记录锁（Record Lock）
-
-记录锁最简单的一种行锁形式，行锁是加在索引上的，如果当你的查询语句不走索引的话，那么它就会升级到表锁，最终造成效率低下。
-
-## 4.2 间隙锁（Gap Lock）
-
-> A gap lock is a lock on a gap between index records, or a lock on the gap before the first or after the last index record。
-
-当我们使用范围条件而不是相等条件去检索，并请求锁时，InnoDB就会给符合条件的记录的索引项加上锁；而对于键值在条件范围内但并不存在（参考上面所说的空闲块）的记录，就叫做间隙，InnoDB在此时也会对间隙加锁，这种记录锁+间隙锁的机制叫`Next-Key Lock`。
-
-可以表明间隙锁是所在两个存在的索引之间，是一个开区间，像最开始的那张索引图，15和18之间，是有（16，17）这个间隙存在的。
-
-> Gap locks in InnoDB are “purely inhibitive”, which means that their only purpose is to prevent other transactions from inserting to the gap. Gap locks can co-exist. A gap lock taken by one transaction does not prevent another transaction from taking a gap lock on the same gap. There is no difference between shared and exclusive gap locks. They do not conflict with each other, and they perform the same function.
-
-上面这段话表明间隙锁是可以共存的，共享间隙锁与独占间隙锁之间是没有区别的，两者之间并不冲突。其存在的目的都是防止其他事务往间隙中插入新的纪录，故而一个事务所采取的间隙锁是不会去阻止另外一个事务在同一个间隙中加锁的。
-
-> Gap locking can be disabled explicitly. This occurs if you change the transaction isolation level to READ COMMITTED. Under these circumstances, gap locking is disabled for searches and index scans and is used only for foreign-key constraint checking and duplicate-key checking.
-
-这段话表明，在 RU 和 RC 两种隔离级别下，即使你使用 `select in share mode `或 `select for update`，也无法防止**幻读**（读后写的场景）。因为这两种隔离级别下只会有**行锁**，而不会有**间隙锁**。而如果是 RR 隔离级别的话，就会在间隙上加上间隙锁。
-
-## 4.3 临键锁（Next-key Lock）
-
-> A next-key lock is a combination of a record lock on the index record and a gap lock on the gap before the index record.
-
-临键锁是记录锁与与间隙锁的结合，所以临键锁与间隙锁是一个同时存在的概念，并且临键锁是个左开右闭的却比如(16, 18]。
-
-关于临键锁与幻读，官方文档有这么一条说明：
-
-> By default, InnoDB operates in REPEATABLE READ transaction isolation level. In this case, InnoDB uses next-key locks for searches and index scans, which prevents phantom rows.
-
-就是说 MySQL 默认隔离级别是RR，在这种级别下，如果你使用 select in share mode 或者 select for update 语句，那么InnoDB会使用临键锁（记录锁 + 间隙锁），因而可以防止幻读；
-
-但是我也在网上看到相关描述：即使你的隔离级别是 RR，如果你这是使用普通的select语句，那么此时 InnoDB 引擎将是使用快照读，而不会使用任何锁，因而还是无法防止幻读。（其实普通读应该是快照读没错，但是快照读有些幻读问题通过MVVC解决，但解决不彻底）。
-
-## 4.4 插入意向锁（Insert Intention Lock）
-
-> An insert intention lock is a type of gap lock set by INSERT operations prior to row insertion. This lock signals the intent to insert in such a way that multiple transactions inserting into the same index gap need not wait for each other if they are not inserting at the same position within the gap. Suppose that there are index records with values of 4 and 7. Separate transactions that attempt to insert values of 5 and 6, respectively, each lock the gap between 4 and 7 with insert intention locks prior to obtaining the exclusive lock on the inserted row, but do not block each other because the rows are nonconflicting.
-
-官方文档已经解释得很清楚了，这里我做个翻译机：
-
-插入意图锁是一种间隙锁，在行执行 INSERT 之前的插入操作设置。如果多个事务 INSERT 到同一个索引间隙之间，但没有在同一位置上插入，则不会产生任何的冲突。假设有值为4和7的索引记录，现在有两事务分别尝试插入值为 5 和 6 的记录，在获得插入行的排他锁之前，都使用插入意向锁锁住 4 和 7 之间的间隙，但两者之间并不会相互阻塞，因为这两行并不冲突。
-
-插入意向锁只会和 间隙或者 Next-key 锁冲突，正如上面所说，间隙锁作用就是防止其他事务插入记录造成幻读，正是由于在执行 INSERT 语句时需要加插入意向锁，而插入意向锁和间隙锁冲突，从而阻止了插入操作的执行。
-
-## 4.5 不同类型锁之间的兼容
-
-不同类型的锁之间的兼容如下表所示：
-
-|          | RECORED | GAP  | NEXT-KEY | II GAP（插入意向锁） |
-| -------- | ------- | ---- | -------- | -------------------- |
-| RECORED  |         | 兼容 |          | 兼容                 |
-| GAP      | 兼容    | 兼容 | 兼容     | 兼容                 |
-| NEXT-KEY |         | 兼容 |          | 兼容                 |
-| II GAP   | 兼容    |      |          | 兼容                 |
-
-（其中行表示已有的锁，列表示意图加上的锁）
-
-其中，第一行表示已有的锁，第一列表示要加的锁。插入意向锁较为特殊，所以我们先对插入意向锁做个总结，如下：
-
-- 插入意向锁不影响其他事务加其他任何锁。也就是说，一个事务已经获取了插入意向锁，对其他事务是没有任何影响的；
-- 插入意向锁与间隙锁和 Next-key 锁冲突。也就是说，一个事务想要获取插入意向锁，如果有其他事务已经加了间隙锁或 Next-key 锁，则会阻塞。
-
-其他类型的锁的规则较为简单：
-
-- 间隙锁不和其他锁（不包括插入意向锁）冲突；
-- 记录锁和记录锁冲突，Next-key 锁和 Next-key 锁冲突，记录锁和 Next-key 锁冲突；
-
-# 5. 参考资料
+### 参考
 
 - https://juejin.cn/post/6844903799534911496
 
 - https://www.cnblogs.com/jojop/p/13982679.html#1383854867
+
+## MySQL 如何添加行级锁
+
+**加锁的对象是索引，加锁的基本单位是 next-key lock**，它是由记录锁和间隙锁组合而成的，**next-key lock 是前开后闭区间，而间隙锁是前开后开区间**。
+
+但是，**在能使用「记录锁」或者「间隙锁」就能避免幻读现象的场景下， next-key lock 就会退化成「记录锁」或「间隙锁」**。
+
+### 唯一索引等值查询
+
+用唯一索引进行等值查询的时候，查询的记录存不存在，加锁的规则也会不同：
+
+- 当查询的记录是「存在」的，在索引树上定位到这一条记录后，将该记录的索引中的 next-key lock 会**退化成「记录锁」**。
+- 当查询的记录是「不存在」的，在索引树找到第一条大于该查询记录的记录后，将该记录的索引中的 next-key lock 会**退化成「间隙锁」**。
+
+#### 记录存在的情况
+
+【**问题**】：为什么唯一索引等值查询并且查询记录存在的场景下，该记录的索引中的 next-key lock 会退化成记录锁？
+
+在唯一索引等值查询并且查询记录存在的场景下，仅靠记录锁也能避免幻读的问题。
+
+- 由于主键具有唯一性，所以**其他事务插入 id = 1 的时候，会因为主键冲突，导致无法插入 id = 1 的新记录**。这样事务 A 在多次查询 id = 1 的记录的时候，不会出现前后两次查询的结果集不同，也就避免了幻读的问题。
+- 由于对 id = 1 加了记录锁，**其他事务无法删除该记录**，这样事务 A 在多次查询 id = 1 的记录的时候，不会出现前后两次查询的结果集不同，也就避免了幻读的问题。
+
+#### 记录不存在的情况
+
+<img src="./assets/image-20231220193932316.png" alt="image-20231220193932316" style="zoom:80%;" />
+
+```mysql
+mysql> begin;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> select * from user where id = 2 for update;
+Empty set (0.03 sec)
+```
+
+**事务 A 在 id = 5 记录的主键索引上加的是间隙锁，锁住的范围是 (1, 5)。**
+
+接下来，如果有其他事务插入 id 值为 2、3、4 这一些记录的话，这些插入语句都会发生阻塞。
+
+注意，如果其他事务插入的 id = 1 或者 id = 5 的记录话，并不会发生阻塞，而是报主键冲突的错误，因为表中已经存在 id = 1 和 id = 5 的记录了。
+
+**间隙锁的范围`(1, 5)` ，是怎么确定的？**
+
+如果 LOCK_MODE 是 next-key 锁或者间隙锁，那么 LOCK_DATA 就表示锁的范围「右边界」，此次的事务 A 的 LOCK_DATA 是 5。
+
+然后锁范围的「左边界」是表中 id 为 5 的上一条记录的 id 值，即 1。
+
+因此，间隙锁的范围`(1, 5)`。
+
+【问题】：为什么唯一索引查询记录「不存在」的场景下，在索引树找到第一条大于该查询记录的记录后，要将该记录的索引中的 next-key lock 会退化成「间隙锁」？
+
+-  id = 5 记录上的主键索引的锁如果是 next-key lock，就意味着其他事务无法删除 id = 5 这条记录。但是这次的案例是查询 id = 2 的记录，只要保证前后两次查询 id = 2 的结果集相同，就能避免幻读的问题了。即使 id =5 被删除，也不会有什么影响，那就没必须加 next-key lock，因此只需要在 id = 5 加间隙锁，避免其他事务插入 id = 2 的新记录就行了。
+
+【问题】：为什么不可以针对不存在的记录加记录锁？
+
+锁是加在索引上的，而这个场景下查询的记录是不存在的，自然就没办法锁住这条不存在的记录。
+
+### 唯一索引范围查询
+
+当唯一索引进行范围查询时，**会对每一个扫描到的索引加 next-key 锁，然后如果遇到下面这些情况，会退化成记录锁或者间隙锁**：
+
+- 针对「大于等于」的范围查询，因为存在等值查询的条件，那么如果等值查询的记录是存在于表中，那么该记录的索引中的 next-key 锁会**退化成记录锁**。
+- 针对「小于或者小于等于」的范围查询，要看条件值的记录是否存在于表中：
+  - 当条件值的记录「不在表」中，那么不管是「小于」还是「小于等于」条件的范围查询，**扫描到终止范围查询的记录时，该记录的索引的 next-key 锁会退化成间隙锁**，其他扫描到的记录，都是在这些记录的索引上加 next-key 锁。
+  - 当条件值的记录「在表」中，如果是「小于」条件的范围查询，**扫描到终止范围查询的记录时，该记录的索引的 next-key 锁会退化成间隙锁**，其他扫描到的记录，都是在这些记录的索引上加 next-key 锁；如果「小于等于」条件的范围查询，扫描到终止范围查询的记录时，该记录的索引 next-key 锁不会退化成间隙锁。其他扫描到的记录，都是在这些记录的索引上加 next-key 锁。
+
+#### 针对「大于或者大于等于」的范围查询
+
+<img src="./assets/image-20231220193932316.png" alt="image-20231220193932316" style="zoom:80%;" />
+
+【示例一：针对「大于」的范围查询】
+
+```mysql
+select * from user where id > 15 for update;
+```
+
+ 加锁变化过程如下：
+
+1. 最开始要找的第一行是 id = 20，由于查询该记录不是一个等值查询（不是大于等于条件查询），所以对该主键索引加的是范围为 (15, 20] 的 next-key 锁。
+
+2. 由于是范围查找，就会继续往后找存在的记录，虽然表中最后一条记录是 id = 20 的记录，但是实际在 Innodb 存储引擎中，会用一个特殊的记录来标识最后一条记录，该特殊的记录的名字叫 「supremum pseudo-record」 ，所以扫描第二行的时候，也就扫描到了这个特殊记录的时候，会对该主键索引加的是范围为 (20, +∞] 的 next-key 锁。
+
+- 在 id = 20 这条记录的主键索引上，加了范围为 (15, 20] 的 next-key 锁，意味着其他事务即无法更新或者删除 id = 20 的记录，同时无法插入 id 值为 16、17、18、19 的这一些新记录。
+- 在特殊记录「supremum pseudo-record」的主键索引上，加了范围为 (20, +∞] 的 next-key 锁，意味着其他事务无法插入 id 值大于 20 的这一些新记录。
+
+【示例二：针对「大于等于」的范围查询】
+
+```mysql
+select * from user where id >= 15 for update;
+```
+
+加锁变化过程如下：
+
+1. 最开始要找的第一行是 id = 15，由于查询该记录是一个等值查询（等于 15），所以该主键索引的 next-key 锁会**退化成记录锁**，也就是仅锁住 id = 15 这一行记录。
+2. 由于是范围查找，就会继续往后找存在的记录，扫描到的第二行是 id = 20，于是对该主键索引加的是范围为 (15, 20] 的 next-key 锁。
+3. 接着扫描到第三行的时候，扫描到了特殊记录「supremum pseudo-record」 ，于是对该主键索引加的是范围为 (20, +∞] 的 next-key 锁。
+
+- 在 id = 15 这条记录的主键索引上，加了记录锁，范围是 id = 15 这一行记录；意味着其他事务无法更新或者删除 id = 15 的这一条记录；
+- 在 id = 20 这条记录的主键索引上，加了 next-key 锁，范围是 (15, 20] 。意味着其他事务即无法更新或者删除 id = 20 的记录，同时无法插入 id 值为 16、17、18、19 的这一些新记录。
+- 在特殊记录「supremum pseudo-record」的主键索引上，加了 next-key 锁，范围是 (20, +∞] 。意味着其他事务无法插入 id 值大于 20 的这一些新记录。
+
+### 非唯一索引等值查询
+
+**在加锁时，同时会对这两个索引都加锁，但是对主键索引加锁的时候，只有满足查询条件的记录才会对它们的主键索引加锁**。
+
+针对非唯一索引等值查询时，查询的记录存不存在，加锁的规则也会不同：
+
+- 当查询的记录「存在」时，由于不是唯一索引，所以肯定存在索引值相同的记录，于是**非唯一索引等值查询的过程是一个扫描的过程，直到扫描到第一个不符合条件的二级索引记录就停止扫描，然后在扫描的过程中，对扫描到的二级索引记录加的是 next-key 锁，而对于第一个不符合条件的二级索引记录，该二级索引的 next-key 锁会退化成间隙锁。同时，在符合查询条件的记录的主键索引上加记录锁**。
+- 当查询的记录「不存在」时，**扫描到第一条不符合条件的二级索引记录，该二级索引的 next-key 锁会退化成间隙锁。因为不存在满足查询条件的记录，所以不会对主键索引加锁**。
