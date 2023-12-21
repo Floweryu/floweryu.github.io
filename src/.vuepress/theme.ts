@@ -6,7 +6,7 @@ export default hopeTheme({
   hostname: "https://floweryu.top",
 
   favicon: "logo.png",
-
+  pure: true,
   author: {
     name: "Floweryu",
     url: "https://github.com/Floweryu/floweryu.github.io",
