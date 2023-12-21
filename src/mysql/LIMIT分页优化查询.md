@@ -16,13 +16,13 @@ date: 2023-07-12 20:15:00
 
 例如下面查询：
 
-```mysql
+```sql
 SELECT film_id, description FROM sakila.film ORDER BY title LIMIT 50, 5;
 ```
 
 当偏移量很大的时候，可以改成下面查询：
 
-```mysql
+```sql
 SELECT film.film_id, film.description FROM sakila.film INNER JOIN (
 	SELECT film_id FROM sakila.film ORDER BY title LIMIT 50, 5
 ) AS lim USING(film_id);
@@ -36,7 +36,7 @@ SELECT film.film_id, film.description FROM sakila.film INNER JOIN (
 
 可以根据索引列，预先计算边界值，上面查询可以修改为：
 
-```mysql
+```sql
 SELECT film_id, description FROM sakila.film
 WHERE position BETWEEN 50 AND 54 ORDER BY position;
 ```
@@ -49,14 +49,14 @@ WHERE position BETWEEN 50 AND 54 ORDER BY position;
 
 假设使用下面查询获取第一条结果：
 
-```mysql
+```sql
 SELECT * FROM sakila.rental
 ORDER BY rental_id DESC LIMIT 20;
 ```
 
 假设上面查询的是主键16049到16030的租界记录，下一页查询就可以从16030这个点开始
 
-```mysql
+```sql
 SELECT * FROM sakila.rental
 WHERE rental_id < 16030
 ORDER BY rental_id DESC LIMIT 2

@@ -2,7 +2,6 @@
 title: Redis面试题
 category: [Redis]
 tag: [后端, 中间件]
-headerDepth: 6
 date: 2023-11-09 19:05:00
 ---
 

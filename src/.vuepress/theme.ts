@@ -12,7 +12,8 @@ export default hopeTheme({
     url: "https://github.com/Floweryu/floweryu.github.io",
     email: "869830837@qq.com",
   },
-
+  // 目录深度
+  headerDepth: 6,
   iconAssets: "fontawesome-with-brands",
 
   logo: "/logo_dark.png",

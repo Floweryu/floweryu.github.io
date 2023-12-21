@@ -25,13 +25,13 @@ date: 2023-12-06 20:15:00
 
 对列col1、列col2和列col3建一个联合索引：
 
-```mysql
+```sql
 KEY test_col1_col2_col3 on test(col1,col2,col3);
 ```
 
 联合索引 `test_col1_col2_col3 `实际建立了`(col1)、(col1,col2)、(col,col2,col3)`三个索引。
 
-```mysql
+```sql
 SELECT * FROM test WHERE col1=“1” AND clo2=“2” AND clo4=“4”
 ```
 
@@ -39,7 +39,7 @@ SELECT * FROM test WHERE col1=“1” AND clo2=“2” AND clo4=“4”
 
 **注意**：索引的字段可以是任意顺序的，如：
 
-```mysql
+```sql
 SELECT * FROM test WHERE col1=“1” AND clo2=“2”
 SELECT * FROM test WHERE col2=“2” AND clo1=“1”
 ```
@@ -118,7 +118,7 @@ B+tree 横空出世，**B+ 树就是为了拆分索引数据与业务数据的�
 
 以下面慢查询为例：
 
-```mysql
+```sql
 select
    count(*) 
 from
@@ -135,7 +135,7 @@ where
 
 如果还有以下查询：
 
-```mysql
+```sql
 select * from task where status = 0 and type = 12 limit 10;
 select count(*) from task where status = 0 ;
 ```

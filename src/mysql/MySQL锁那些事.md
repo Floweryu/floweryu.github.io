@@ -11,7 +11,7 @@ date: 2023-12-17 20:15:00
 
 使用全局锁：
 
-```mysql
+```sql
 flush tables with read lock
 ```
 
@@ -22,7 +22,7 @@ flush tables with read lock
 
 如果要释放全局锁，则要执行这条命令：
 
-```mysql
+```sql
 unlock tables
 ```
 
@@ -63,7 +63,7 @@ unlock tables
 
 接下来以两条SQL的执行为例，讲解一下InnoDB对于单行数据的加锁原理：
 
-```mysql
+```sql
 update user set age = 10 where id = 49;
 update user set age = 10 where name = 'Tom';
 ```
@@ -297,7 +297,7 @@ InnoDB 存储引擎提供了个 `innodb_autoinc_lock_mode` 的系统变量，是
 
 <img src="./assets/image-20231221160720161.png" alt="image-20231221160720161" style="zoom:80%;" />
 
-```mysql
+```sql
 mysql> begin;
 Query OK, 0 rows affected (0.00 sec)
 
@@ -334,7 +334,7 @@ mysql> select * from user where id = 1 for update;
 
 <img src="./assets/image-20231221160720161.png" alt="image-20231221160720161" style="zoom:80%;" />
 
-```mysql
+```sql
 mysql> begin;
 Query OK, 0 rows affected (0.00 sec)
 
@@ -386,7 +386,7 @@ Empty set (0.00 sec)
 
 【示例一】：针对「大于」的范围查询
 
-```mysql
+```sql
 mysql> begin;
 Query OK, 0 rows affected (0.00 sec)
 
@@ -412,7 +412,7 @@ mysql> select * from user where id > 15 for update;
 
 【示例二】：针对「大于等于」的范围查询
 
-```mysql
+```sql
 mysql> begin;
 Query OK, 0 rows affected (0.00 sec)
 
@@ -442,7 +442,7 @@ mysql> select * from user where id >= 15 for update;
 
 【示例一】：针对「小于」的范围查询时，查询条件值的记录「不存在」表中的情况。
 
-```mysql
+```sql
 mysql> begin;
 Query OK, 0 rows affected (0.00 sec)
 
@@ -468,7 +468,7 @@ mysql> select * from user where id < 6 for update;
 
 【示例二】：针对「小于等于」的范围查询时，查询条件值的记录「存在」表中的情况。
 
-```mysql
+```sql
 mysql> begin;
 Query OK, 0 rows affected (0.00 sec)
 
@@ -492,7 +492,7 @@ mysql> select * from user where id <= 5 for update;
 
 【示例三】：针对「小于」的范围查询时，查询条件值的记录「存在」表中的情况。
 
-```mysql
+```sql
 mysql> begin;
 Query OK, 0 rows affected (0.00 sec)
 
@@ -533,7 +533,7 @@ mysql> select * from user where id < 5 for update;
 
 #### 记录不存在的情况
 
-```mysql
+```sql
 mysql> begin;
 Query OK, 0 rows affected (0.00 sec)
 
@@ -574,7 +574,7 @@ X 型的间隙锁范围是 (22, 39)。意味着其他事务无法插入 age 值�
 
 对非唯一索引（age）进行了等值查询，且表中存在 age = 22 的记录。
 
-```mysql
+```sql
 mysql> begin;
 Query OK, 0 rows affected (0.00 sec)
 
@@ -608,7 +608,7 @@ mysql> select * from user where age = 22 for update;
 
 非唯一索引进行范围查询时，对二级索引记录加锁都是加 next-key 锁，并不会退化。
 
-```mysql
+```sql
 mysql> begin;
 Query OK, 0 rows affected (0.00 sec)
 

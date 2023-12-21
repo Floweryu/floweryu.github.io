@@ -71,7 +71,7 @@ B+ 树中每一层都是通过双向链表连接起来的，如果是以页为�
 
 【示例】创建下面表进行演示：
 
-```mysql
+```sql
 CREATE TABLE `t_user` (
   `id` int(11) NOT NULL,
   `name` VARCHAR(20) DEFAULT NULL,
