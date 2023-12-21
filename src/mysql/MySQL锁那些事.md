@@ -107,7 +107,7 @@ InnoDB实现了以下两种类型的行锁：
 
 **性能分析**：`select for update`语句相当于一个`update`语句。在业务繁忙的情况下，如果事务没有及时地`commit`或者`rollback`可能会造成事务长时间的等待，从而影响数据库的并发使用效率。
 
-**`select lock in share mode`** 增加 S 锁
+**`select lock in share mode` 增加 S 锁**
 
 `in share mode` 子句的作用就是将查找的数据加上一个 `share` 锁，这个就是表示其他的事务只能对这些数据进行简单的 `select` 操作，而不能进行 DML 操作。
 
@@ -127,7 +127,7 @@ Gap Lock 称为间隙锁，只存在于可重复读隔离级别，目的是为�
 
  Record Lock + Gap Lock 的组合，锁定一个范围，并且锁定记录本身。
 
-**示例：**假设表中有一个范围 id 为（3，5] 的 next-key lock，那么其他事务即不能插入 id = 4 记录，也不能修改 id = 5 这条记录。
+**示例**：假设表中有一个范围 id 为（3，5] 的 next-key lock，那么其他事务即不能插入 id = 4 记录，也不能修改 id = 5 这条记录。
 
 **next-key lock 是包含间隙锁 + 记录锁的，如果一个事务获取了 X 型的 next-key lock，那么另外一个事务在获取相同范围的 X 型的 next-key lock 时，是会被阻塞的**。
 
