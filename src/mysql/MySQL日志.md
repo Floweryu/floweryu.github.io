@@ -64,16 +64,18 @@ redo log 记录某个数据页做了什么修改，在事务提交时，只需�
 
 当系统崩溃时，虽然脏页数据没有持久化，但是 redo log 已经持久化，接着 MySQL 重启后，可以根据 redo log 的内容，将所有数据恢复到最新的状态。
 
-【修改 undo 页面，也需要记录对应的 redo log】
+**修改 undo 页面，也需要记录对应的 redo log**：
 
 开启事务后，InnoDB 层更新记录前，首先要记录相应的 undo log，如果是更新操作，需要把被更新的列的旧值记下来，也就是要生成一条 undo log，undo log 会写入 Buffer Pool 中的 undo 页面。**在内存修改该 Undo 页面后，需要记录对应的 redo log**。
 
-【undo log 和 redo log 区别】
+**undo log 和 redo log 区别**：
 
 - redo log 记录事务「完成后」的数据状态，记录更新**之后**的值，防止数据丢失。
 - undo log 记录事务「开始前」的数据状态，记录更新**之前**的值，事务崩溃可以进行回滚。
 
-【**问题**】：数据也要写入磁盘，redo log 也要写入磁盘，为什么多此一举？
+---
+
+【**问题**】：**数据也要写入磁盘，redo log 也要写入磁盘，为什么多此一举？**
 
 写入 redo log 使用了追加操作，对磁盘操作是**顺序写**；而写入数据需要先找到写入位置，再写磁盘，对磁盘操作是**随机写**。
 
@@ -85,3 +87,36 @@ redo log 记录某个数据页做了什么修改，在事务提交时，只需�
 
 - **实现事务的持久性**，能够保证 MySQL 在任何时间段突然崩溃，重启后之前已提交的记录都不会丢失。
 - **将写操作从「随机写」变成了「顺序写」**，提升 MySQL 写入磁盘的性能。
+
+---
+
+【**问题**】：**redo log 是直接写入磁盘吗？**
+
+> 一般都不会直接写入磁盘，都会有一个缓存区。
+
+肯定不是。如果每次执行事务都直接写入磁盘，这样就会产生大量的磁盘 I/O。
+
+所以，redo log 会先写入到缓存中：**redo log bufer**，每次产生一条 redo log 时，先写入缓存，再持久化到磁盘。
+
+**redo log buffer** 默认大小 16 MB，可以通过 `innodb_log_Buffer_size` 参数动态调整大小。
+
+---
+
+### redo log 何时刷盘
+
+既然 redo log 先存在缓存里，那么什么时候开始刷新到磁盘？时机如下：
+
+- MySQL 正常关闭时。
+- 当 redo log buffer 写入量超过设置 redo log buffer 内存空间一半，触发刷盘。
+- 后台线程每隔 1 秒，将 redo log buffer 持久化到磁盘。
+- 每次事务提交时，都会将 redo log buffer 里面的 redo log 直接持久化到磁盘。该功能由 `innodb_flush_log_at_trx_commit` 参数控制。
+
+---
+
+**`innodb_flush_log_at_trx_commit` 作用**
+
+默认值为 1，可取的值有0、1、2，作用分别如下：
+
+- 参数为 0 时：每次提交事务将 redo log 留在 redo log buffer 中，事务提交时不会触发写入磁盘操作。
+- 参数为 1 时：每次提交事务都将 redo log buffer 中的 redo log 直接持久化到磁盘中，保证 MySQL 重启后数据不会丢失。
+
