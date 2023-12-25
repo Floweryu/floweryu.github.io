@@ -1,5 +1,5 @@
 ---
-title: Mysql的limit原理及分页查询优化
+title: limit原理及分页查询优化
 category: [MySQL]
 tag: [数据库, 原理]
 date: 2023-07-12 20:15:00
