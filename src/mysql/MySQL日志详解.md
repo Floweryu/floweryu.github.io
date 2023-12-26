@@ -1,5 +1,5 @@
 ---
-title: MySQL日志
+title: MySQL日志详解：und
 category: [MySQL]
 tag: [数据库, 原理]
 date: 2023-12-21 20:40:00
@@ -238,4 +238,85 @@ MySQL 给每个线程分配了一片内存用于缓冲 bin log，叫做 binlog c
 3. 开启事务，先记录相应的 undo log，需要把被更新的旧值记下来，undo log 会写入 buffer pool 中的 undo 页面，在内存修改 undo 页面后，需要记录对应的 redo log。
 4. 开始更新记录，会先更新内存（同时标记为脏页），然后将记录写到 redo log 里面，这时就算更新完成。为了减少磁盘 I/O 不会立即将脏页写入磁盘，后续由后台线程将脏页写入到磁盘，即 WAL 技术。
 5. 到此，该记录更新完成。
-6. 
+6. 更新语句执行完后，记录对应的 bin log，此时会先向 binlog cache 中保存记录，在事务提交时才会统一将所有 bin log 刷盘。
+7. 事务「两阶段提交」
+
+## 两阶段提交
+
+事务提交后，redo log 和 undo log 都要持久化到磁盘，这是两个独立的过程，可能会导致两份日志不一致。
+
+假设 id = 1 的记录 name 字段原来的值是 aaa，现在执行 SQL 将 name 改为 bbb，在两份日志持久化过程中，可能会出现下面情况：
+
+- **redo log 成功刷盘，但 bin log 刷盘失败**：MySQL 重启后，通过 redo log 将 id = 1 的数据 name 字段恢复到 bbb，但 bin log 里面没有记录这条更新语句，所以在主从同步时，从库的这条记录的 name 仍然是 aaa，**导致主从不一致**。
+- **bin log 成功刷盘，但 redo log 刷盘失败**：redo log 没写，MySQL 宕机恢复后这个事务无效，所以该记录的 name 值仍然是 aaa，但 bin log 记录了更新的语句，会被复制到从库，从库的这条记录的 name 是 bbb，**导致主从不一致**。
+
+为了避免上面两种情况的出现，使用了「两阶段提交」来解决上面问题：分布式事务一致性协议，要不全部成功，要不全部失败。
+
+两阶段提交将单个事务的提交拆分成了 2 个阶段，分别是「准备阶段」和「提交阶段」。
+
+在 MySQL 的 InnoDB 存储引擎中，开启 binlog 的情况下，MySQL 会同时维护 binlog 日志与 InnoDB 的 redo log，为了保证这两个日志的一致性，MySQL 使用了**内部 XA 事务**，内部 XA 事务由 binlog 作为协调者，存储引擎是参与者。
+
+<img src="./assets/image-20231226110710363.png" alt="image-20231226110710363" style="zoom:50%;" />
+
+- **准备阶段**：将 XA 事务的 ID 写入到 redo log，同时将 redo log 对应的事务状态设置为 prepare，然后将 redo log 持久化到磁盘（innodb_flush_log_at_trx_commit = 1 的作用）。
+- **提交阶段**：将 XA 事务的 ID 写入到 binlog，然后将 binlog 持久化到磁盘（sync_binlog = 1的作用），接着将 redo log 状态设置为 commit，此时 redo log 并不需要持久化到磁盘，只需要写入操作系统的 page cache 中，因为只要 binlog 写入磁盘成功，redo log 状态还是 prepare 也没关系，一样会被认为事务执行成功。
+
+### 两阶段提交过程异常会怎样
+
+<img src="./assets/image-20231226111532283.png" alt="image-20231226111532283" style="zoom:50%;" />
+
+不管是时刻 A（redo log 已经写入磁盘， binlog 还没写入磁盘），还是时刻 B （redo log 和 binlog 都已经写入磁盘，还没写入 commit 标识）崩溃，**此时的 redo log 都处于 prepare 状态**。
+
+在 MySQL 重启后会按顺序扫描 redo log 文件，碰到处于 prepare 状态的 redo log，就拿着 redo log 中的 XID 去 binlog 查看是否存在此 XID：
+
+- 如果 bin log 中**没有**当前内部 XA 事务的 XID，说明 redo log 完成刷盘，但是 binlog 还没有刷盘，则回滚事务。对应时刻 A 崩溃恢复的情况。
+- 如果 bin log 中**有**当前内部 XA 事务的 XID，说明 redo log 和 binlog 都已经完成了刷盘，则提交事务。对应时刻 B 崩溃恢复的情况。
+
+**两阶段提交是以 binlog 写成功为事务提交成功的标识**，因为 binlog 写成功了，就意味着能在 bin log 中查找到与 redo log 相同的 XID。
+
+---
+
+【问题】：**事务没提交的时候，redo log 持久化到磁盘有影响吗？**
+
+不会。因为事务没提交时 bin log 是还没有持久化到磁盘的，这种情况会进行回滚操作。
+
+---
+
+【问题】：**为什么处于 prepare 阶段的 redo log 加上完成的 bin log，重启就可以提交事务？**
+
+因为 bin log 已经持久化了，之后就会同步到从库，为了保证主从一致性，主库也需要提交这个事务。
+
+---
+
+### 两阶段提交的问题
+
+- **磁盘 I/O 次数高**：每个事务提交都会进行两次刷盘，一次是 redo log 刷盘，一次是 bin log 刷盘。
+- **锁竞争激烈**：在多事务情况下，不能保证两阶段提交的顺序一致，所以需要加锁来保证提交的原子性。
+
+### 组提交
+
+当有多个事务提交的时候，会将多个 bin log 刷盘操作合成一个，从而减少 I/O 刷盘次数。
+
+组提交机制将 commit 阶段拆分为三个过程，每个过程都有一个队列来保证事务顺序：
+
+- **flush 阶段**：多个事务按照进入队列的顺序将 bin log 从 cache 写入文件（不刷盘）。
+- **sync 阶段**：对 bin log 文件进行 fsync 操作（多个事务的 bin log 合并为一次刷盘）。
+- **commit 阶段**：各个事务按照顺序进行 commit 操作。
+
+锁只针对每个队列，不再锁住提交事务的整个过程，这样锁粒度就小，可以使多个阶段并发执行，从而提高效率。
+
+---
+
+【问题】：**有 redo log 组提交吗？**
+
+在 MySQL 5.7 版本中，在 prepare 阶段不再让事务各自执行 redo log 刷盘操作，而是延迟到 flush 阶段之中，sync 阶段之前。
+
+---
+
+## 优化磁盘 I/O
+
+如果出现 MySQL 磁盘 I/O 很高的现象，我们可以通过控制以下参数，来**延迟** binlog 和 redo log 刷盘的时机，从而降低磁盘 I/O 的频率：
+
+- 设置组提交的两个参数： **`binlog_group_commit_sync_delay` 和 `binlog_group_commit_sync_no_delay_count` 参数**，延迟 binlog 刷盘的时机，即使 MySQL 进程中途挂了，也没有丢失数据的风险，因为 binlog 早被写入到 page cache 了，只要系统没有宕机，缓存在 page cache 里的 binlog 就会被持久化到磁盘。
+- **将 `sync_binlog `设置为大于 1 的值**（比较常见是 100~1000），表示每次提交事务都 write，但累积 N 个事务后才 fsync，相当于延迟了 binlog 刷盘的时机。但是这样做的风险是，主机故障时会丢 N 个事务的 binlog 日志。
+- **将 `innodb_flush_log_at_trx_commit `设置为 2**。表示每次事务提交时，都只是缓存在 redo log buffer 里的 redo log 写到 redo log 文件，注意写入到「 redo log 文件」并不意味着写入到了磁盘，因为操作系统的文件系统中有个 Page Cache，专门用来缓存文件数据的，所以写入「 redo log 文件」意味着写入到了操作系统的文件缓存，然后交由操作系统控制持久化到磁盘的时机。但是这样做的风险是，主机故障的时候会丢数据。
