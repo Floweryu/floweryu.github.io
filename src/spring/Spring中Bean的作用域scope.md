@@ -2,7 +2,7 @@
 title: Spring中Bean的作用域
 category: [Spring]
 tag: [后端]
-date: 2023-07-30 20:30:00
+date: 2023-12-28 11:30:00
 ---
 
 ## 五种模式
