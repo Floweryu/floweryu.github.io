@@ -1,3 +1,10 @@
+---
+title: Spring动态AOP原理
+category: [Spring]
+tag: [后端]
+date: 2023-12-29 15:30:00
+---
+
 ## 一.. 引入
 
 ### 1.1 概念
