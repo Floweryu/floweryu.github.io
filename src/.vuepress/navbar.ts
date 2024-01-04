@@ -4,7 +4,6 @@ export default navbar([
   "/",
   {
     text: "Java",
-    icon: "mug-saucer",
     link: "/java/",
   },
   {
@@ -51,12 +50,10 @@ export default navbar([
   },
   {
     text: "分类",
-    icon: "bookmark",
     link: "/category/",
   },
   {
     text: "标签",
-    icon: "tag",
     link: "/tag/",
   },
 ]);
