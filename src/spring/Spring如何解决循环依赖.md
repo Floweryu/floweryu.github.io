@@ -7,7 +7,7 @@ date: 2023-12-28 11:30:00
 
 ## 概括
 
-先总结一句：**Spring 中使用了「三级缓存」的设计，解决的是「单例模式」下 setter 注入的循环依赖问题。**对于多例 Bean 和 Prototype 作用域的 Bean的循环依赖问题，并不能使用三级缓存设计解决。
+先总结一句：**Spring 中使用了「三级缓存」的设计，解决的是「单例模式」下 setter 注入的循环依赖问题**。对于多例 Bean 和 Prototype 作用域的 Bean的循环依赖问题，并不能使用三级缓存设计解决。
 
 ## Bean 的生命周期
 
@@ -428,7 +428,7 @@ public class MyPostProcessor implements BeanPostProcessor {
 
 至于为什么放在三级缓存而不是二级缓存，可能是下面原因：
 
-Spring 结合`AOP`跟 Bean 的生命周期本身就是通过`AnnotationAwareAspectJAutoProxyCreator`这个后置处理器来完成的，在这个后置处理的`postProcessAfterInitialization`方法中对初始化后的 Bean 完成`AOP`代理。如果出现了循环依赖，那没有办法，只有给Bean先创建代理，但是没有出现循环依赖的情况下，设计之初就是让 Bean在 生命周期的最后一步完成代理而不是在实例化后就立马完成代理。
+Spring 结合`AOP`跟 Bean 的生命周期本身就是通过`AnnotationAwareAspectJAutoProxyCreator`这个后置处理器来完成的，在这个后置处理的`postProcessAfterInitialization`方法中对初始化后的 Bean 完成`AOP`代理。如果出现了循环依赖，那没有办法，只有给Bean先创建代理，但是没有出现循环依赖的情况下，设计之初就是让 Bean 在生命周期的最后一步完成代理而不是在实例化后就立马完成代理。
 
 **在有 AOP 的 Bean 之间的循环依赖情况下，看看使用三级缓存和不使用的区别**
 
