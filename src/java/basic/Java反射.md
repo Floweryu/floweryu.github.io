@@ -5,9 +5,69 @@ tag: [后端, Java基础]
 date: 2024-01-08 20:05:00
 ---
 
+## 反射基础
+
+反射机制：允许在运行时发现和使用类的信息，将 Java 类中各种成分映射成 Java 对象。
+
+### Class 类
+
+手动编写的类被编译后会产生一个 Class 对象，每个 class 标识的类在内存中**有且只有一个**与之对应的 Class 对象来描述类型信息，Class 类只存私有构造函数，因此对应的 Class 对象只能由 JVM 创建和加载。Class 类的对象作用是**运行时**提供或获得某个对象的类型信息
+
+### 源码理解
+
+> 原文链接：
+>
+> - https://www.cnblogs.com/yougewe/p/10125073.html
+>
+> - https://pdai.tech/md/java/basic/java-basic-x-reflection.html
+
+```java
+public class HelloReflect {
+    public static void main(String[] args) {
+        try {
+            // 1. 使用外部配置的实现，进行动态加载类
+            TempFunctionTest test = (TempFunctionTest)Class.forName("basic.TempFunctionTest").newInstance();
+            test.sayHello("call directly");
+            // 2. 根据配置的函数名，进行方法调用（不需要通用的接口抽象）
+            Object t2 = new TempFunctionTest();
+            Method method = t2.getClass().getDeclaredMethod("sayHello", String.class);
+            method.invoke(test, "method invoke");
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (NoSuchMethodException e ) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void sayHello(String word) {
+        System.out.println("hello," + word);
+    }
+}
+```
+
+执行流程具体如下：
+
+![](./assets/java-basic-reflection-1.png)
+
+### 小结
+
+1. 反射类及反射方法的获取，都是通过从列表中搜寻查找匹配的方法，所以查找性能会随类的大小方法多少而变化。
+2. 每个类都会有一个与之对应的 Class 实例，从而每个类都可以获取 method 反射方法，并作用到其他实例身上。
+3. 反射也是考虑了线程安全的，放心使用。
+4. 反射使用软引用 relectionData 缓存 class 信息，避免每次重新从 jvm 获取带来的开销。
+5. 反射调用多次生成新代理 Accessor，而通过字节码生存的则考虑了卸载功能，所以会使用独立的类加载器。
+6. 当找到需要的方法，都会 copy 一份出来，而不是使用原来的实例，从而保证数据隔离。
+7. 调度反射方法，最终是由 jvm 执行 `invoke0()` 执行。
+
 ## 反射调用静态方法
 
-> 下面实例使用反射调用静态方法的两种类型：public和private
+> 下面实例使用反射调用静态方法的两种类型：public 和 private
 
 创建一个类`GreetingAndBye`
 
