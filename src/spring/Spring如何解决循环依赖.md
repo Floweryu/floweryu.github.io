@@ -7,7 +7,7 @@ date: 2023-12-28 11:30:00
 
 ## 概括
 
-先总结一句：**Spring 中使用了「三级缓存」的设计，解决的是「单例模式」下 setter 注入的循环依赖问题。**对于多例 Bean 和 Prototype 作用域的 Bean的循环依赖问题，并不能使用三级缓存设计解决。
+先总结一句：**Spring 中使用了「三级缓存」的设计，解决的是「单例模式」下 setter 注入的循环依赖问题**。对于多例 Bean 和 Prototype 作用域的 Bean的循环依赖问题，并不能使用三级缓存设计解决。
 
 ## Bean 的生命周期
 
@@ -295,6 +295,155 @@ protected Object doCreateBean(){
 }
 ```
 
+上面源码中，A 对象会在 `getEarlyBeanReference` 方法中提前暴露到三级缓存中，看一下该方法源码：
+
+```java
+protected Object getEarlyBeanReference(String beanName, RootBeanDefinition mbd, Object bean) {
+    Object exposedObject = bean;
+    // 假如忽略到该if，可以发现直接返回bean对象，说明这里是为了解决AOP
+    if (!mbd.isSynthetic() && hasInstantiationAwareBeanPostProcessors()) {
+        for (SmartInstantiationAwareBeanPostProcessor bp : getBeanPostProcessorCache().smartInstantiationAware) {
+            // 调用后置处理器
+            exposedObject = bp.getEarlyBeanReference(exposedObject, beanName);
+        }
+    }
+    return exposedObject;
+}
+```
+
+实际上就是调用了后置处理器的`getEarlyBeanReference`，实现了该方法的后置处理器只有一个，就是通过`@EnableAspectJAutoProxy`注解导入的`AnnotationAwareAspectJAutoProxyCreator`，可以看`AbstractAutoProxyCreator#getEarlyBeanReference` 方法：
+
+```java
+	/**
+	 * 这个是在aop判断要不要包装时使用
+	 * 在循环依赖注入属性的时候如果有AOP代理的话, 也会进行代理, 然后返回
+	 * @see #postProcessAfterInitialization(java.lang.Object, java.lang.String)
+	 * @param bean the raw bean instance
+	 * @param beanName the name of the bean
+	 * @return
+	 */
+	@Override
+	public Object getEarlyBeanReference(Object bean, String beanName) {
+		Object cacheKey = getCacheKey(bean.getClass(), beanName);
+		this.earlyProxyReferences.put(cacheKey, bean);
+		return wrapIfNecessary(bean, beanName, cacheKey);
+	}
+```
+
+在不考虑 **AOP** 的情况下，`getEarlyBeanReference` 方法等价于：
+```java
+protected Object getEarlyBeanReference(String beanName, RootBeanDefinition mbd, Object bean) {
+    Object exposedObject = bean;
+    return exposedObject;
+}
+```
+
+所以没有 AOP 的情况下，是不是可以理解为**三级缓存**没什么用了？
+
+在有 AOP 的情况下，在完成初始化后，Spring 又调用了一次`getSingleton`方法，这一次传入的参数又不一样了，`false `可以理解为禁用三级缓存，前面在 B 中属性注入时 A 已经将三级缓存中取出放入到了二级缓存中，所以这里的`getSingleton`方法做的时间就是从二级缓存中获取到这个代理后的A对象。源码如下：
+
+```java
+		// earlySingletonExposure：如果你的bean允许被早期暴露出去 也就是说可以被循环引用  那这里就会进行检查
+		if (earlySingletonExposure) {
+			// 此时一级缓存肯定还没数据，但是此时候二级缓存earlySingletonObjects有对象A
+			// 因为在初始化B的时候，会从三级缓存中获取A，这时会将A从三级缓存移到二级缓存
+			// 注意：第二参数为false  表示不会再去三级缓存里查了
+			// 经过各式各样的实例化、初始化的后置处理器都执行了，如果在后置处理器中进行了特殊处理，那么这里exposedObject == bean就不会成立
+			Object earlySingletonReference = getSingleton(beanName, false);
+			if (earlySingletonReference != null) {
+				// 如果经过了initializeBean()后，exposedObject还是木有变，那就可以大胆放心的返回了
+				// initializeBean会调用后置处理器（可看bean的生命周期），这个时候可以生成一个代理对象，那这个时候它哥俩就不会相等了 走else去判断吧
+				if (exposedObject == bean) {
+					exposedObject = earlySingletonReference;
+				}
+				// allowRawInjectionDespiteWrapping这个值默认是false
+				// hasDependentBean：若它有依赖的bean 那就需要继续校验了 (若没有依赖的 就放过它~)
+				else if (!this.allowRawInjectionDespiteWrapping && hasDependentBean(beanName)) {
+					// 拿到它所依赖的Bean们
+					String[] dependentBeans = getDependentBeans(beanName);
+					Set<String> actualDependentBeans = new LinkedHashSet<>(dependentBeans.length);
+					// 一个个检查它所以Bean
+					// removeSingletonIfCreatedForTypeCheckOnly这个放见下面  在AbstractBeanFactory里面
+					// 简单的说，它如果判断到该dependentBean并没有在创建中的了的情况下,那就把它从所有缓存中移除 并且返回true
+					// 否则（比如确实在创建中） 那就返回false 进入我们的if里面~  表示所谓的真正依赖
+					//（解释：就是真的需要依赖它先实例化，才能实例化自己的依赖）
+					for (String dependentBean : dependentBeans) {
+						if (!removeSingletonIfCreatedForTypeCheckOnly(dependentBean)) {
+							actualDependentBeans.add(dependentBean);
+						}
+					}
+					// 若存在真正依赖，那就报错（不要等到内存移除你才报错，那是非常不友好的）
+					// 这个异常是BeanCurrentlyInCreationException，报错日志也稍微留意一下，方便定位错误~~~~
+					if (!actualDependentBeans.isEmpty()) {
+						throw new BeanCurrentlyInCreationException(beanName,
+								"Bean with name '" + beanName + "' has been injected into other beans [" +
+								StringUtils.collectionToCommaDelimitedString(actualDependentBeans) +
+								"] in its raw version as part of a circular reference, but has eventually been " +
+								"wrapped. This means that said other beans do not use the final version of the " +
+								"bean. This is often the result of over-eager type matching - consider using " +
+								"'getBeanNamesForType' with the 'allowEagerInit' flag turned off, for example.");
+					}
+				}
+			}
+		}
+```
+
+如果在初始化阶段的后置处理器中替换到正常流程的 Bean，比如增加一个后置处理器：
+
+```java
+@Component
+public class MyPostProcessor implements BeanPostProcessor {
+    @Override
+    public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+        if (beanName.equals("a")) {
+            return new A();
+        }
+        return bean;
+    }
+}
+```
+
+> **问题**：初始化时是对 A 对象本身进行初始化，而容器中及注入到 B 的都是代理对象，会有问题吗？
+
+因为不管是 `cglib` 代理还是 `jdk` 动态代理生成的代理类，内部都有一个目标类的引用。调用代理对象方法时，实际会调用目标对象方法，A 对象初始化完成相当于代理对象自身也完成了初始化。
+
+> **问题**：为什么需要三级缓存，直接放到二级缓存可以吗？
+
+只有在真正发送循环依赖的时候，才会提前生成代理对象，否则只会创建一个工厂并将其放到三级缓存中。
+
+假如 A 对象只是被代理，并没有循环依赖，A 实例化完成后还是会走到下面代码中：
+
+```java
+        // A是单例的，mbd.isSingleton()条件满足
+        // allowCircularReferences：这个变量代表是否允许循环依赖，默认是开启的，条件也满足
+        // isSingletonCurrentlyInCreation：正在在创建A，也满足
+        // 所以earlySingletonExposure=true
+		boolean earlySingletonExposure = (mbd.isSingleton() && this.allowCircularReferences &&
+				isSingletonCurrentlyInCreation(beanName));
+		if (earlySingletonExposure) {
+			// 还是会通过三级缓存提前暴露一个工厂对象
+			addSingletonFactory(beanName, () -> getEarlyBeanReference(beanName, mbd, bean));
+		}
+```
+
+至于为什么放在三级缓存而不是二级缓存，可能是下面原因：
+
+Spring 结合`AOP`跟 Bean 的生命周期本身就是通过`AnnotationAwareAspectJAutoProxyCreator`这个后置处理器来完成的，在这个后置处理的`postProcessAfterInitialization`方法中对初始化后的 Bean 完成`AOP`代理。如果出现了循环依赖，那没有办法，只有给Bean先创建代理，但是没有出现循环依赖的情况下，设计之初就是让 Bean 在生命周期的最后一步完成代理而不是在实例化后就立马完成代理。
+
+**在有 AOP 的 Bean 之间的循环依赖情况下，看看使用三级缓存和不使用的区别**
+
+使用了三级缓存的过程：
+
+![image-20240103194620146](./assets/image-20240103194620146.png)
+
+不使用三级缓存，直接存在二级缓存中：
+
+![image-20240103194803881](./assets/image-20240103194803881.png)
+
+不同点在于**为 A 创建代理的时机不同**，不使用三级缓存的情况下 A 实例化后立马会为 A 创建代理对象。
+
+---
+
 总结下如何使用三级缓存解决单例 Bean 的循环依赖：
 
 1. 创建对象 A，完成生命周期的第一步，即**实例化**，在调用 `createBeanInstance` 方法后，会调用 `addSingletonFactory` 方法，将已实例化但未属性赋值、未初始化的对象 A 放入三级缓存 `singletonFactories` 中。即将对象 A 提早曝光给 IoC 容器。
@@ -306,9 +455,11 @@ protected Object doCreateBean(){
 7. 继续，转到「对象 A **执行属性赋值过程**并发现依赖了对象 B」的场景。此时，**对象 A 可以从一级缓存中获取到对象 B**，所以可以顺利执行属性赋值操作。
 8. 继续，对象 A 执行初始化操作，完成后，会被存放到**一级缓存**中。
 
-### 对AOP代理对象的影响
+![image-20240103174021352](./assets/image-20240103174021352.png)
 
+### 总结
 
+Spring 通过三级缓存解决了循环依赖，一级缓存为初始化完成后的单例池 `singletonObjects`，二级缓存为早起曝光对象（原始对象） `earlySingletonObjects`，三级缓存为早期曝光工厂`singletonFactories`。当 A，B 两个对象有循环依赖时，在 A 完成实例化后，就会用实例化的对象去创建一个对象工厂，并添加到三级缓存中，如果 A 被 AOP 代理，那么通过这个工厂获取到的是 **A 代理后的对象**；如果 A 没有被 AOP 代理，那么通过工厂获取到的是 **A 实例化的对象**。当 A 进行属性注入时，会去创建 B，同时 B 又依赖了 A，所以创建 B 的同时又会去调用 `getBean(A)` 获取 A，此时会从缓存中获取，第一步：先获取到三级缓存中的工厂；第二步：调用工厂的`getObject()`方法获取对应的对象，然后将其注入到 B 中，同时将三级缓存中的 A 对象移到二级缓存中。紧接着 B 完整生命周期流程：初始化、后置处理器等。当 B 创建完成后，再注入到 A 中，A 再完成整个生命周期，清除二级缓存，将初始化后的 A 放入一级缓存。
 
 ## 相关问题
 
@@ -329,10 +480,9 @@ Spring IoC 容器只会管理单例 Bean 的生命周期，并将单例 Bean 存
 
 ### 为什么一定要三级缓存
 
-**如果 Spring 选择二级缓存来解决循环依赖的话，那么就意味着所有 Bean 都需要在实例化完成之后就立马为其创建代理，而 Spring 的设计原则是在 Bean 初始化完成之后才为其创建代理。**
-
-> 使用三级缓存而非二级缓存并不是因为只有三级缓存才能解决循环引用问题，其实二级缓存同样也能很好解决循环引用问题。使用三级而非二级缓存并非出于 IOC 的考虑，而是出于 AOP 的考虑，即若使用二级缓存，在 AOP 情形注入到其他 Bean的，不是最终的代理对象，而是原始对象。
+如果要使用二级缓存解决循环依赖，意味着所有 Bean在实例化后就要完成AOP代理，这样违背了Spring设计的原则，Spring在设计之初就是通过`AnnotationAwareAspectJAutoProxyCreator`这个后置处理器来在Bean生命周期的最后一步来完成AOP代理，而不是在实例化后就立马进行AOP代理。
 
 ## 参考
 
 - https://cloud.tencent.com/developer/article/1497692
+- https://developer.aliyun.com/article/766880
