@@ -243,7 +243,7 @@ protected Object doCreateBean(){
 	// 此处我们假设B已经创建好了 为B@5678
 	
 	// 需要注意的是在populateBean("b")的时候依赖有beanA，所以此时候调用getBean("A")最终会调用getSingleton("A")，
-	// 此时候上面说到的getEarlyBeanReference方法就会被执行。这也解释为何@Autowired是个代理对象，而不是普通对象的根本原因
+	// 此时候如果自己被依赖了，上面说到的getEarlyBeanReference方法就会被执行。这也解释为何@Autowired是个代理对象，而不是普通对象的根本原因
 	populateBean(beanName, mbd, instanceWrapper);
 	// 实例化。这里会执行后置处理器BeanPostProcessor的两个方法
 	// 此处注意：postProcessAfterInitialization()是有可能返回一个代理对象的，这样exposedObject 就不再是原始对象了
@@ -271,10 +271,10 @@ protected Object doCreateBean(){
 				String[] dependentBeans = getDependentBeans(beanName);
 				Set<String> actualDependentBeans = new LinkedHashSet<>(dependentBeans.length);
 
-				// A@1234依赖的是["B"]，所以此处去检查b
+				// A@1234依赖的是["B"]，所以此处去检查B
 				// 如果最终存在实际依赖的bean：actualDependentBeans不为空 那就抛出异常  证明循环引用了~
 				for (String dependentBean : dependentBeans) {
-					// 这个判断原则是：如果此时候b并还没有创建好，this.alreadyCreated.contains(beanName)=true表示此bean已经被创建过，就返回false
+					// 这个判断原则是：如果此时候B并还没有创建好，this.alreadyCreated.contains(beanName)=true表示此bean已经被创建过，就返回false
 					// 若该bean没有在alreadyCreated缓存里，就是说没被创建过(其实只有CreatedForTypeCheckOnly才会是此仓库)
 					if (!removeSingletonIfCreatedForTypeCheckOnly(dependentBean)) {
 						actualDependentBeans.add(dependentBean);
