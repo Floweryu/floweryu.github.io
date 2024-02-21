@@ -168,15 +168,15 @@ public class ProblemOrdIdBuilder {
 
 1. 新建两个新数据库集群，同时同步老数据库数据到两个新集群。两个新集群的数据要做到实时同步，老库添加修改哪条数据，两个新库也要跟着变化。
 
-![image.png](https://cdn.nlark.com/yuque/0/2024/png/22907667/1708483588206-dddddf31-a7cb-437a-bb37-11dbcb1e6018.png#averageHue=%23f7f7f6&clientId=uc8530c86-ecfc-4&from=paste&id=ucb147f58&originHeight=448&originWidth=636&originalType=binary&ratio=2.25&rotation=0&showTitle=false&size=29396&status=done&style=none&taskId=u19698e1d-ad20-41f5-a93f-242f49bec06&title=)
+![image-20240221110124864](./assets/image-20240221110124864.png)
 
 2. 上线代码。使用两个新集群的数据库地址，进行查询和插入。这时两个新数据库的proxy还是指向旧数据库。同时验证数据是否写到旧数据库。如果直接将proxy链接到新库A和B，会造成主键冲突。
 
-![image.png](https://cdn.nlark.com/yuque/0/2024/png/22907667/1708483674945-4afe6bf4-86d4-478e-850c-82dfcba104dc.png#averageHue=%23f6f6f5&clientId=uc8530c86-ecfc-4&from=paste&id=u86c893d0&originHeight=473&originWidth=617&originalType=binary&ratio=2.25&rotation=0&showTitle=false&size=37493&status=done&style=none&taskId=u62fd0b75-27f1-40d7-baa9-bcfd480b119&title=)
+![image-20240221110141607](./assets/image-20240221110141607.png)
 
 3. DBA将两个新数据库的proxyA和proxyB同时指向两个新集群（30s内）
 
-![image.png](https://cdn.nlark.com/yuque/0/2024/png/22907667/1708483720791-cd8d2378-2ae7-46f0-9424-5cb2318bbbfa.png#averageHue=%23f4f4f4&clientId=uc8530c86-ecfc-4&from=paste&id=u6fb16ed7&originHeight=461&originWidth=1022&originalType=binary&ratio=2.25&rotation=0&showTitle=false&size=60345&status=done&style=none&taskId=u38934eac-6240-4097-8f72-3d32ab429f5&title=)
+![image-20240221110157679](./assets/image-20240221110157679.png)
 
 丢失的这段时间的数据，后续可以让DBA修复。
 
